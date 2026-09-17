@@ -75,6 +75,9 @@ derlemede kullanılan kaynak commit'ini gösterir.
 Profil dosyası okuyucusu henüz yayımlanmadı. Gelecekteki strict JSON sözleşmesi
 [`docs/design/profile-schema.json`](design/profile-schema.json) dosyasında
 tanımlıdır; mevcut istemci `--profile` seçeneği sunmaz.
+Gelecekteki kullanım senaryoları için tenant alt kümesi, destek aktarımı ve
+tam redaksiyon örnekleri [`docs/examples/profiles/`](examples/profiles/) altında
+yer alır; bunlar yalnızca tasarım örneğidir.
 
 Desteklenen tüm ana sürümler birlikte kurulabilir. Dosyalar `/opt/pgdumpplus/<major>/` altında,
 komut bağlantıları `/usr/bin/` içinde bulunur. Sistemdeki `pg_dump` ve
