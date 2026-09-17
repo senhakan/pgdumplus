@@ -18,7 +18,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | ID | Status | Dependencies | Deliverable (PLAN section) |
 | --- | --- | --- | --- |
 | A1 | DONE | — | Strict masks and regression coverage (A1); local PG17.5 and CI PG13/17 checks pass |
-| A2 | READY | A1 | Catalog-only dry-run and JSON schema (A2) |
+| A2 | IN_PROGRESS | A1 | Catalog-only dry-run and JSON schema (A2) |
 | A3 | READY | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | READY | — | Version manifest, supported bases, package identity/order (B1) |
 | B2 | READY | — | Source hashes, CI permissions, SBOM/provenance (B2) |
