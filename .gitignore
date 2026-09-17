@@ -1,0 +1,6 @@
+# Private environment notes, logs and local artifacts
+.local/
+_build/
+dist/
+__pycache__/
+*.pyc

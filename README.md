@@ -1,0 +1,163 @@
+# pg_dumpplus
+
+**Your PostgreSQL dump. Just the rows you need. Sensitive columns masked.**
+
+[![Release](https://img.shields.io/github/v/release/senhakan/pgdumplus)](https://github.com/senhakan/pgdumplus/releases/latest)
+[![License: PostgreSQL](https://img.shields.io/badge/license-PostgreSQL-blue)](LICENSE)
+
+[Download](https://github.com/senhakan/pgdumplus/releases/latest) · [Türkçe](docs/pgdumplus-tr.md) · [Report an issue](https://github.com/senhakan/pgdumplus/issues)
+
+pg_dumpplus extends PostgreSQL's `pg_dump` with **row filtering** and **column
+masking**. Export recent records, select a tenant's data, or redact selected
+fields in one command—with familiar dump formats and standard restore tools.
+
+```bash
+pg_dumpplus -d mydb -Fc \
+  --where="public.orders:created_at >= now() - interval '30 days'" \
+  --mask='public.customers:email:all' \
+  --mask='public.customers:phone:phone' \
+  -f export.dump
+```
+
+This exports the database with only the last 30 days of orders and the specified
+customer columns masked. Other tables and columns are exported normally.
+
+## Why pg_dumpplus?
+
+- **Choose rows, not just tables.** Add SQL conditions with `--where`, similar
+  to Oracle Data Pump's `QUERY` option.
+- **Mask as you export.** Use built-in presets or your own SQL expressions.
+- **Keep your workflow.** Custom (`-Fc`), plain SQL (`-Fp`), directory (`-Fd`),
+  parallel dumps (`-j`), and `--inserts` are supported.
+- **Keep a consistent snapshot.** Filtering and masking run inside the dump's
+  snapshot, without a separate export step.
+
+pg_dumpplus installs as a separate command alongside your existing PostgreSQL
+tools. It is an independent project based on PostgreSQL's `pg_dump`.
+
+## Install
+
+Choose a Linux **x86_64** package from the
+[latest release](https://github.com/senhakan/pgdumplus/releases/latest).
+
+| Platform | Package |
+| --- | --- |
+| RHEL / Rocky Linux / AlmaLinux 8 | `.el8.x86_64.rpm` |
+| Ubuntu 22.04 | `1u2204_amd64.deb` |
+| Ubuntu 24.04 | `1u2404_amd64.deb` |
+| Debian 12 | `1d12_amd64.deb` |
+
+Packages are available for PostgreSQL 13 and 17. Choose the matching major
+version for those servers; use the PostgreSQL 17 package for servers on 14–16.
+Do not use a client older than your server's major version.
+
+For example, install the PostgreSQL 17 package for Ubuntu 24.04:
+
+```bash
+sudo apt install ./pgdumpplus-17_<version>-<revision>u2404_amd64.deb
+pg_dumpplus --version
+```
+
+For an RPM package, use `sudo dnf install ./<package.rpm>`. Packages contain
+precompiled clients and a private `libpq`; no compiler, Python, or PostgreSQL
+server installation is required. The package manager installs runtime libraries.
+
+| Command | Purpose |
+| --- | --- |
+| `pg_dumpplus-17` / `pg_dumpplus-13` | Use a specific client major |
+| `pg_dumpplus` | Default command supplied by the PostgreSQL 17 package |
+| `pg_restoreplus-17` / `pg_restoreplus-13` | Matching archive restore client |
+
+Both majors can be installed together. Files live under
+`/opt/pgdumpplus/<major>/`, with command links in `/usr/bin/`. System `pg_dump`
+and `pg_restore` commands are unchanged. Removing PG17 removes the unversioned
+command; `pg_dumpplus-13` remains available if installed.
+
+Tarballs use the same `opt/` and `usr/` layout and can also be extracted into a
+private directory. Run `<directory>/usr/bin/pg_dumpplus-17` from there. Choose
+the archive for your OS; its runtime libraries must be installed separately.
+
+## Filter rows
+
+Pass a table pattern and a SQL condition, without the `WHERE` keyword:
+
+```bash
+pg_dumpplus -d mydb -Fc \
+  --where='public.orders:tenant_id = 42' \
+  --where='public.order_items:order_id IN (SELECT id FROM public.orders WHERE tenant_id = 42)' \
+  -f tenant.dump
+```
+
+Repeat `--where` for different tables. Patterns follow `pg_dump -t` syntax,
+including `public.orders` and `public.*`. Tables without a matching filter are
+exported in full; use `-t` to limit which tables are included.
+
+For example, export the 1,000 most recent orders by ID:
+
+```bash
+pg_dumpplus -d mydb -t public.orders -Fc \
+  --where='public.orders:id IN (SELECT id FROM public.orders ORDER BY id DESC LIMIT 1000)' \
+  -f recent_orders.dump
+```
+
+## Mask columns
+
+Use `--mask='table:column:expression'` for each column to replace:
+
+```bash
+pg_dumpplus -d mydb -Fc \
+  --mask='public.customers:full_name:all' \
+  --mask='public.customers:phone:phone' \
+  --mask="public.customers:email:'redacted@example.com'" \
+  -f masked.dump
+```
+
+| Preset | Behavior | Example |
+| --- | --- | --- |
+| `all` | Replace characters with `*` | `Alice` → `*****` |
+| `phone` | Keep the last three characters | `05551234567` → `********567` |
+| `tc` | Keep the first two and last two characters | `12345678901` → `12*******01` |
+
+Custom expressions are evaluated by PostgreSQL. Their results must fit the
+destination column's type and constraints. Presets return text. You can combine
+`--where` and `--mask` in the same dump.
+
+Presets preserve NULL values. `all` preserves empty strings; `tc` fully masks
+values of four characters or fewer.
+
+**Check mask warnings before sharing an export.** A missing, dropped, or
+generated column causes its mask to be skipped with a warning, not a failed
+dump. Other data can still be exported unmasked. Masking only affects the
+specified columns; it does not automatically anonymize the database.
+
+## Restore
+
+Restore a custom or directory archive into an existing empty database:
+
+```bash
+pg_restoreplus-17 -d destination --no-owner export.dump
+```
+
+For a plain SQL dump, use `psql -X -v ON_ERROR_STOP=1 -d destination -f export.sql`.
+The matching restore client is included. Standard `pg_restore` also works if
+its version is compatible with the dump.
+
+## Things to know
+
+- Filters do not automatically include related rows. Keep referenced parent
+  records when filtering tables connected by foreign keys.
+- Masking primary, unique, or foreign key columns can break constraints.
+- Selecting tables with `-t` does not automatically include all dependencies,
+  such as their schemas. Prepare these on the destination when needed.
+- An unmatched table pattern or invalid SQL causes the dump to fail.
+
+## Feedback and contributions
+
+Have a use case, feature idea, or bug to report?
+[Open an issue](https://github.com/senhakan/pgdumplus/issues). Include your
+PostgreSQL version and a minimal example with sensitive data removed.
+Pull requests are welcome.
+
+## License
+
+[PostgreSQL License](LICENSE).

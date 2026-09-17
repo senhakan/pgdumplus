@@ -1,0 +1,210 @@
+name: CI
+
+on:
+  push:
+    tags: ['v*']
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pg_versions:
+        description: 'Space-separated PostgreSQL versions to build (13.x and 17.x)'
+        required: false
+        default: '17.8 13.18'
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.pick.outputs.versions }}
+    steps:
+      - id: pick
+        env:
+          REQUESTED_VERSIONS: ${{ inputs.pg_versions }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="$REQUESTED_VERSIONS"
+          else
+            V="17.8 13.18"
+          fi
+          [[ -n "$V" ]] || { echo "No PostgreSQL versions requested" >&2; exit 1; }
+          for version in $V; do
+            [[ "$version" =~ ^(13|17)\.[0-9]+$ ]] || { echo "Unsupported version" >&2; exit 1; }
+          done
+          J=$(printf '%s' "$V" | tr ' ' '\n' | sed '/^$/d' | jq -R . | jq -s -c .)
+          echo "versions=$J" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: plan
+    uses: ./.github/workflows/verify.yml
+    with:
+      pg_versions: ${{ needs.plan.outputs.versions }}
+
+  build:
+    needs: plan
+    runs-on: ubuntu-latest
+    container:
+      image: almalinux:8
+    strategy:
+      fail-fast: false
+      matrix:
+        pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
+    name: pg_dumpplus ${{ matrix.pg_version }} (EL8)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build dependencies
+        run: dnf install -y gcc make bison flex perl zlib-devel openssl-devel rpm-build python3 curl tar gzip diffutils binutils
+
+      - name: Build client package
+        run: |
+          chmod +x scripts/build.sh
+          ./scripts/build.sh "${{ matrix.pg_version }}" /tmp/pgb
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pg_dumpplus-${{ matrix.pg_version }}-linux-x86_64
+          path: dist/*
+          if-no-files-found: error
+
+  build-deb:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
+        dist:
+          - image: ubuntu:22.04
+            tag: ubuntu2204
+          - image: ubuntu:24.04
+            tag: ubuntu2404
+          - image: debian:12
+            tag: debian12
+    container:
+      image: ${{ matrix.dist.image }}
+    name: deb ${{ matrix.pg_version }} (${{ matrix.dist.tag }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build dependencies
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential bison flex zlib1g-dev libssl-dev dpkg-dev python3 ca-certificates curl
+
+      - name: Build client package
+        run: |
+          chmod +x scripts/build_deb.sh
+          PGVER="${{ matrix.pg_version }}" ./scripts/build_deb.sh /tmp/debout
+          echo "OUT=/tmp/debout" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pg_dumpplus-${{ matrix.pg_version }}-${{ matrix.dist.tag }}
+          path: /tmp/debout/*
+          if-no-files-found: error
+
+  smoke-rpm:
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    container:
+      image: almalinux:8
+    strategy:
+      fail-fast: false
+      matrix:
+        pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pg_dumpplus-${{ matrix.pg_version }}-linux-x86_64
+          path: packages
+      - name: Install and remove in a runtime-only container
+        shell: bash
+        env:
+          PGVER: ${{ matrix.pg_version }}
+        run: |
+          set -euo pipefail
+          packages=("$PWD"/packages/*.rpm)
+          [[ ${#packages[@]} == 1 ]]
+          bash scripts/smoke_package.sh rpm "${PGVER%%.*}" "${packages[0]}"
+
+  smoke-deb:
+    needs: [plan, build-deb]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
+        dist:
+          - image: ubuntu:22.04
+            tag: ubuntu2204
+          - image: ubuntu:24.04
+            tag: ubuntu2404
+          - image: debian:12
+            tag: debian12
+    container:
+      image: ${{ matrix.dist.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pg_dumpplus-${{ matrix.pg_version }}-${{ matrix.dist.tag }}
+          path: packages
+      - name: Install and remove in a runtime-only container
+        shell: bash
+        env:
+          PGVER: ${{ matrix.pg_version }}
+        run: |
+          set -euo pipefail
+          apt-get update -qq
+          packages=("$PWD"/packages/*.deb)
+          [[ ${#packages[@]} == 1 ]]
+          bash scripts/smoke_package.sh deb "${PGVER%%.*}" "${packages[0]}"
+
+  release:
+    needs: [build, build-deb, verify, smoke-rpm, smoke-deb]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-dist
+          merge-multiple: true
+
+      - name: Unified SHA256SUMS over the final asset set
+        run: |
+          cd all-dist
+          rm -f SHA256SUMS*.txt
+          find . -maxdepth 1 -type f ! -name 'SHA256SUMS.txt' -printf '%f\n' | sort | xargs sha256sum > ../SHA256SUMS.txt
+          cd ..
+          cat SHA256SUMS.txt
+
+      - name: Publish GitHub Release (tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            all-dist/*
+            SHA256SUMS.txt
+          body: |
+            Precompiled pg_dumpplus with matching restore client and private libpq.
+            Choose the package for your OS: EL8 RPM, Ubuntu 22.04/24.04 or Debian 12 DEB.
+            No compilation or PostgreSQL server installation is needed on the client.
+            Install with `dnf install ./<pkg>.rpm` or `apt install ./<pkg>.deb`.
+            Run `pg_dumpplus-<major> --version`; PG17 also supplies `pg_dumpplus`.
+            Tarballs share the same opt/ and usr/ layout. Runtime dependencies remain OS-specific.
+
+      - name: Upload workflow artifacts (dispatch builds)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pg_dumpplus-all-${{ github.run_number }}
+          path: |
+            all-dist/*
+            SHA256SUMS.txt
