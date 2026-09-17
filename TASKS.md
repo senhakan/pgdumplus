@@ -53,8 +53,8 @@ These are target milestones, not published versions or calendar promises.
 | --- | --- | --- | --- |
 | Baseline | f3285c3 / 35253870996 | CI success | Existing matrix only |
 | Planning | Working tree, 2026-09-17 | Plan and agent handoff created | No implementation or release performed |
-| A1 local | 0ba5cf8 working tree | PG17.5 candidate build + isolated suite: 40 passed | CI evidence recorded below |
-| A1 CI | [35256202241](https://github.com/senhakan/pgdumpplus/actions/runs/35256202241) | PG13/17 builds, 40-check integration suites and package smoke jobs passed | Release publication remains a separate B3 gate |
+| A1 local | a80188d | PG17.5 candidate build + isolated suite: 40 passed; patcher/idempotence checks passed | Strict validation is fail-fast |
+| A1 CI | [35260089452](https://github.com/senhakan/pgdumpplus/actions/runs/35260089452) | PG13/17 builds, isolated verification and DEB/RPM smoke jobs passed | Release publication remains a separate B3 gate |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
