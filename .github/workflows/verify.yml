@@ -36,6 +36,15 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      pgnew:
+        image: postgres:18.6
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     env:
       PGHOST: pg
       PGUSER: postgres
@@ -84,3 +93,19 @@ jobs:
             --binary "$CLIENTS/pg_dumpplus" \
             --vanilla "$CLIENTS/pg_dump" \
             --pg-restore "$CLIENTS/pg_restore"
+
+      - name: Reject newer server with older client
+        if: matrix.pg_version == '17.11'
+        shell: bash
+        env:
+          PGHOST: pgnew
+          PGUSER: postgres
+          PGPORT: '5432'
+        run: |
+          set +e
+          "$CLIENTS/pg_dumpplus" -d postgres --no-owner --no-privileges \
+            -f /tmp/cross-major.dump >/tmp/cross-major.out 2>/tmp/cross-major.err
+          status=$?
+          set -e
+          [[ $status -ne 0 ]]
+          grep -Fq 'server major 18 is newer than this client major 17' /tmp/cross-major.err
