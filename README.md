@@ -1,15 +1,22 @@
-# pg_dumpplus
+# pg_dumpplus — PostgreSQL dump filtering and masking
 
-**Your PostgreSQL dump. Just the rows you need. Sensitive columns masked.**
+**A drop-in PostgreSQL `pg_dump` alternative for row filtering, column masking,
+and safer data exports.**
 
 [![Release](https://img.shields.io/github/v/release/senhakan/pgdumplus)](https://github.com/senhakan/pgdumplus/releases/latest)
 [![License: PostgreSQL](https://img.shields.io/badge/license-PostgreSQL-blue)](LICENSE)
 
 [Download](https://github.com/senhakan/pgdumplus/releases/latest) · [Türkçe](docs/pgdumplus-tr.md) · [Report an issue](https://github.com/senhakan/pgdumplus/issues)
 
-pg_dumpplus extends PostgreSQL's `pg_dump` with **row filtering** and **column
-masking**. Export recent records, select a tenant's data, or redact selected
-fields in one command—with familiar dump formats and standard restore tools.
+`pg_dumpplus` extends PostgreSQL's `pg_dump` with **row-level filtering** and
+**column-level masking**. Export recent records, select a tenant's data, or
+anonymize selected fields in one command—with familiar dump formats and standard
+restore tools. It is designed for developers, database administrators, data
+engineers, staging refreshes, support exports, and privacy-safe test data.
+
+If you searched for a PostgreSQL data export tool, filtered `pg_dump`, masked
+database dump, or anonymized PostgreSQL backup, this is the command-line client
+you can install alongside the official PostgreSQL tools.
 
 ```bash
 pg_dumpplus -d mydb -Fc \
@@ -34,6 +41,13 @@ customer columns masked. Other tables and columns are exported normally.
 
 pg_dumpplus installs as a separate command alongside your existing PostgreSQL
 tools. It is an independent project based on PostgreSQL's `pg_dump`.
+
+### Common use cases
+
+- Export only one tenant, customer, date range, or business partition.
+- Create staging and QA dumps without exposing email, phone, address, or payment data.
+- Produce support extracts while keeping PostgreSQL's custom, plain, and directory formats.
+- Run repeatable, scriptable exports in CI/CD and operational tooling.
 
 ## Install
 
