@@ -46,7 +46,7 @@ sisteminize uygun Linux **x86_64** paketini indirin.
 | Ubuntu 24.04 | `1u2404_amd64.deb` |
 | Debian 12 | `1d12_amd64.deb` |
 
-PostgreSQL 13 ve 17 için paketler sunulur. Bu sunucularda aynı ana sürümü,
+PostgreSQL 13 (legacy) ve 17 (maintained) için paketler sunulur. Bu sunucularda aynı ana sürümü,
 14–16 sunucularında PostgreSQL 17 paketini seçin. Sunucunuzdan daha eski ana
 sürüme sahip bir istemci kullanmayın.
 

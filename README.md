@@ -63,8 +63,9 @@ Choose a Linux **x86_64** package from the
 | Ubuntu 24.04 | `1u2404_amd64.deb` |
 | Debian 12 | `1d12_amd64.deb` |
 
-Packages are available for PostgreSQL 13 and 17. Choose the matching major
-version for those servers; use the PostgreSQL 17 package for servers on 14–16.
+Packages are available for PostgreSQL 13 (legacy) and 17 (maintained). Choose
+the matching major version for those servers; use the PostgreSQL 17 package for
+servers on 14–16.
 Do not use a client older than your server's major version.
 
 For example, install the PostgreSQL 17 package for Ubuntu 24.04:
