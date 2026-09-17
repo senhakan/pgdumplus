@@ -383,7 +383,7 @@ pgdp_emit_plan(TableInfo *tblinfo, int numTables)
 	if (strcmp(pgdp_plan_format, "json") == 0)
 		printf("{\\\"schema_version\\\":1,\\\"masks\\\":[");
 	else
-		printf("pg_dumpplus dry-run plan\\n");
+		printf("pg_dumpplus dry-run plan\n");
 	for (me = dump_mask_entries; me; me = me->next)
 	{
 		for (i = 0; i < numTables; i++)
@@ -399,13 +399,13 @@ pgdp_emit_plan(TableInfo *tblinfo, int numTables)
 				if (strcmp(pgdp_plan_format, "json") == 0)
 				{
 					if (!first) printf(",");
-					printf("{\\\"table\\\":\\\"%s\\\",\\\"column\\\":\\\"%s\\\",\\\"type\\\":\\\"%s\\\",\\\"mask\\\":\\\"%s\\\",\\\"filter\\\":%s}",
+					printf("{\"table\":\"%s\",\"column\":\"%s\",\"type\":\"%s\",\"mask\":\"%s\",\"filter\":%s}",
 						   tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k],
 						   me->text_ret ? "preset" : "custom",
 						   simple_oid_list_member(&tabledata_where_oids, tbinfo->dobj.catId.oid) ? "true" : "false");
 				}
 				else
-					printf("table=%s column=%s type=%s mask=%s filter=%s\\n",
+					printf("table=%s column=%s type=%s mask=%s filter=%s\n",
 						   tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k],
 						   me->text_ret ? "preset" : "custom",
 						   simple_oid_list_member(&tabledata_where_oids, tbinfo->dobj.catId.oid) ? "true" : "false");
@@ -414,7 +414,7 @@ pgdp_emit_plan(TableInfo *tblinfo, int numTables)
 		}
 	}
 	if (strcmp(pgdp_plan_format, "json") == 0)
-		printf("]}\\n");
+		printf("]}\n");
 }
 """
 
