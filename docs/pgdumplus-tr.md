@@ -151,6 +151,10 @@ Hazır kalıplar karakter tabanlı dönüşümlerdir; e-posta, IBAN, kart veya b
 bir iş formatının geçerliliğini denetlemez. Alt sistem kısıtlarınızı kendi
 verilerinizle ayrıca test edin.
 
+Partition tablolarında seçim hiyerarşisi tutarlı olmalıdır. Seçim dışında kalan
+bir partition child kolonuna maske verilirse komut açıkça hata verir; kural
+sessizce yok sayılmaz.
+
 ## Geri yükleme
 
 Custom veya dizin arşivini mevcut, boş bir veritabanına yükleyin:

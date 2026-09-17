@@ -180,6 +180,10 @@ Presets are character-based transformations; they do not validate email, IBAN,
 card or other business formats. Test resulting values against your own
 constraints before relying on them downstream.
 
+Partitioned tables require selecting the partition hierarchy consistently. A
+mask that targets a partition child excluded by the table selection fails
+explicitly; it is never silently ignored.
+
 ## Restore
 
 Restore a custom or directory archive into an existing empty database:
