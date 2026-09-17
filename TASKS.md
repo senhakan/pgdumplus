@@ -66,6 +66,7 @@ These are target milestones, not published versions or calendar promises.
 | B1 current matrix | [35270331753](https://github.com/senhakan/pgdumpplus/actions/runs/35270331753) | Commit 30f45cf: PG13.23/17.11/18.6 builds, isolated dump/restore, all DEB/RPM smoke jobs passed | Project-version-only upgrade ordering and release promotion remain B1/B3 work |
 | B2 action pinning | 4fcdeae | All third-party workflow actions are pinned to reviewed immutable commit SHAs; Dependabot remains configured for update proposals | Release attestation itself is exercised only by a real candidate tag |
 | A2 final | [35270987562](https://github.com/senhakan/pgdumpplus/actions/runs/35270987562) | Commit fc754c3: dry-run text/JSON, identifier escaping, custom-SQL non-execution and option error checks passed across PG13.23/17.11/18.6; all package smoke jobs passed | Custom expressions are reported, not fully type/runtime evaluated in dry-run |
+| B1 package metadata fix | 25c1669 + local PG18.6 build | PG18’s changed schema-only option representation is handled conditionally; local DEB metadata reports project 1.2.0 and upstream 18.6 separately | CI re-run required after the fix |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
