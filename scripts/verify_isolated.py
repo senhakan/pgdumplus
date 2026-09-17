@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
 import uuid
 
 
@@ -38,6 +39,9 @@ FROM generate_series(1,100) g;
 CREATE TABLE domain_examples (id integer PRIMARY KEY, label masked_label);
 INSERT INTO domain_examples
 SELECT g, ('Ürün  ' || g)::masked_label FROM generate_series(1,3) g;
+CREATE TABLE snapshot_probe (id integer PRIMARY KEY, state text NOT NULL);
+INSERT INTO snapshot_probe
+SELECT g, 'before' FROM generate_series(1,20000) g;
 CREATE TABLE orders (
     id integer PRIMARY KEY, customer_id integer REFERENCES customers(id),
     payload text NOT NULL
@@ -231,6 +235,28 @@ class Suite:
             if result.returncode == 0 or fragment not in result.stderr:
                 raise AssertionError("expected dry-run option failure: " + result.stderr)
 
+    def snapshot_consistency(self):
+        """A concurrent committed update must not produce mixed dump values."""
+        def writer():
+            self.sql(self.source, "UPDATE snapshot_probe SET state = 'after'")
+
+        timer = threading.Timer(0.25, writer)
+        timer.start()
+        try:
+            path, result = self.dump([
+                "--where=public.snapshot_probe:id > 0 AND (SELECT pg_sleep(0.0001) IS NULL)",
+            ], fmt="p")
+            if result.returncode:
+                raise RuntimeError(result.stderr)
+        finally:
+            timer.join(timeout=30)
+            if timer.is_alive():
+                raise RuntimeError("snapshot writer did not finish")
+        self.restore(path, "p")
+        self.equal(self.sql(self.target,
+                            "SELECT count(*), count(DISTINCT state) FROM snapshot_probe"),
+                   "20000|1")
+
     def checks(self):
         self.case("unfiltered dump matches upstream (random guards normalized)", self.unfiltered)
         for fmt, extra in (("c", []), ("p", []), ("p", ["--inserts"]),
@@ -275,6 +301,7 @@ class Suite:
         self.case("dry-run JSON quoted identifiers", self.dry_run_quoted_json)
         self.case("dry-run does not execute custom SQL", self.dry_run_does_not_execute_custom_sql)
         self.case("dry-run option combinations fail clearly", self.dry_run_option_errors)
+        self.case("concurrent update keeps one dump snapshot", self.snapshot_consistency)
         self.case("preset on non-text column fails before export", lambda: self.error(
             "--mask=public.customers:birth_year:all", "yields text"))
         self.case("mask on generated column fails before export", lambda: self.error(
