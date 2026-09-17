@@ -30,6 +30,15 @@ def supported_majors():
     return {str(item["major"]) for item in data["postgresql"]}
 
 
+def source_hash(version):
+    with open(ROOT / "support-matrix.json", encoding="utf-8") as stream:
+        data = json.load(stream)
+    for item in data["postgresql"]:
+        if item.get("tested_minor") == version:
+            return item.get("source_sha256")
+    return None
+
+
 def run(argv, cwd=None, env=None, log=None):
     print("+ " + " ".join(str(v) for v in argv), flush=True)
     if log:
@@ -93,6 +102,11 @@ def main():
         run(["curl", "-fsSL", "--retry", "3", "--connect-timeout", "15",
              "--max-time", "300", "-o", source_archive,
              "https://codeload.github.com/postgres/postgres/tar.gz/refs/tags/" + tag])
+    expected_hash = source_hash(args.version)
+    if expected_hash:
+        actual_hash = hashlib.sha256(source_archive.read_bytes()).hexdigest()
+        if actual_hash != expected_hash:
+            raise RuntimeError("upstream source hash does not match support-matrix.json")
     # Only regular files and directories from the expected upstream root are allowed.
     source = work / ("postgres-" + tag)
     with tarfile.open(str(source_archive)) as tar:

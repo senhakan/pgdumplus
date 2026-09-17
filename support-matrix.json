@@ -6,8 +6,8 @@
     "next": "v2.0.0-rc.1"
   },
   "postgresql": [
-    {"major": 13, "status": "legacy", "source_series": "13.x"},
-    {"major": 17, "status": "maintained", "source_series": "17.x", "default_command": true}
+    {"major": 13, "status": "legacy", "source_series": "13.x", "tested_minor": "13.18", "source_sha256": "c26273e47cd76024531562114e3acee0d40f250f28b9fe03926ef00802cb9994"},
+    {"major": 17, "status": "maintained", "source_series": "17.x", "tested_minor": "17.8", "source_sha256": "78b39721e70bb3324e9c9a2dfd321d204be19894830fe4bac5b1f2de73fae6ab", "default_command": true}
   ],
   "packages": {
     "architecture": ["x86_64"],
