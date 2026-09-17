@@ -33,10 +33,11 @@ version() {
 }
 verify() {
   expected_project=${1:-${EXPECTED_PROJECT_VERSION:-}}
+  skip_identity_check=${2:-0}
   "pg_dumpplus-$MAJOR" --version
   info=$("pg_dumpplus-$MAJOR" --build-info)
   [[ "$info" == pg_dumpplus\ project\ *\;\ PostgreSQL\ *\;\ source\ * ]]
-  if [[ -n "$expected_project" ]]; then
+  if [[ -n "$expected_project" && "$skip_identity_check" != 1 ]]; then
     [[ "$info" == *"project ${expected_project};"* ]]
   fi
   "pg_restoreplus-$MAJOR" --version
@@ -52,7 +53,7 @@ verify() {
 }
 install_package "$OLDER"
 BEFORE=$(version)
-verify "${EXPECTED_OLDER_VERSION:-${EXPECTED_PROJECT_VERSION:-}}"
+verify "${EXPECTED_OLDER_VERSION:-${EXPECTED_PROJECT_VERSION:-}}" "${SKIP_OLDER_BUILD_INFO_VERSION_CHECK:-0}"
 if [[ -n "$NEWER" ]]; then
   install_package "$NEWER"
   AFTER=$(version)

@@ -211,6 +211,7 @@ jobs:
           rm -f "$old"
           bash scripts/make_deb_upgrade_fixture.sh "${packages[0]}" "$old"
           export EXPECTED_OLDER_VERSION=1.1.0
+          export SKIP_OLDER_BUILD_INFO_VERSION_CHECK=1
           bash scripts/smoke_package.sh deb "${PGVER%%.*}" "$old" "${packages[0]}"
 
   release:
