@@ -667,6 +667,19 @@ find_unquoted_char(const char *s, char sep)
             'printf(_("  --where=PATTERN:FILTER   dump only rows matching SQL FILTER for\\n"\n'
             '\t\t\t\t\t "                               tables matching PATTERN (pg_dumpplus)\\n"));\n'
             '\tprintf(_("\\nConnection options:\\n"));', "dd-help")
+        # Refuse a client older than the connected server major. A matching
+        # major remains compatible; accidental downgrade paths fail early.
+        fm_err = "fatal" if PG13 else "pg_fatal"
+        t = rep_once(t,
+            "\tConnectDatabase(fout, &dopt.cparams, false);\n",
+            "\tConnectDatabase(fout, &dopt.cparams, false);\n"
+            "\t/* pg_dumpplus: reject newer server majors explicitly. */\n"
+            "\t{\n"
+            "\t\tconst char *server_version = PQparameterStatus(GetConnection(fout), \"server_version\");\n"
+            "\t\tint server_major = server_version ? atoi(server_version) : 0;\n"
+            f"\t\tif (server_major > (PG_VERSION_NUM / 10000))\n\t\t\t{fm_err}(\"pg_dumpplus: server major %d is newer than this client major %d\", server_major, PG_VERSION_NUM / 10000);\n"
+            "\t}\n",
+            "dd-server-major")
         # 4f: forward decl
         mfwd = re.search(r"static void expand_table_name_patterns\(Archive \*fout,\n[^\0]*?\);\n", t)
         if not mfwd: raise Fail("anchor [dd-fwd] yok")
