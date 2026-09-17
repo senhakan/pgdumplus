@@ -21,12 +21,16 @@ import uuid
 FIXTURE = """
 CREATE TABLE customers (
     id integer PRIMARY KEY, full_name text, ssn varchar(11), phone text,
-    address text, birth_year integer,
+    email text, address text, iban text, card_number text, uuid_value text,
+    birth_year integer,
     doubled integer GENERATED ALWAYS AS (id * 2) STORED
 );
-INSERT INTO customers (id, full_name, ssn, phone, address, birth_year)
+INSERT INTO customers (id, full_name, ssn, phone, email, address, iban,
+                       card_number, uuid_value, birth_year)
 SELECT g, 'Customer ' || g, '12345678901', '05551234567',
-       'Address ' || g, 1980 + g % 30
+       'user' || g || '@example.com', 'Address ' || g,
+       'DE89370400440532013000', '4111111111111111',
+       '550e8400-e29b-41d4-a716-446655440000', 1980 + g % 30
 FROM generate_series(1,100) g;
 CREATE TABLE orders (
     id integer PRIMARY KEY, customer_id integer REFERENCES customers(id),
@@ -160,7 +164,7 @@ class Suite:
             self.case("filter + multi-mask roundtrip " + label, lambda fmt=fmt, extra=extra:
                 self.roundtrip([
                     "--where=public.orders:id <= 25",
-                    "--mask=public.customers:ssn:tc",
+                    "--mask=public.customers:ssn:identity",
                     "--mask=public.customers:phone:phone",
                     "--mask=public.customers:full_name:all", *extra,
                 ], "SELECT (SELECT count(*) FROM orders), (SELECT count(*) FROM customers), "
@@ -208,18 +212,29 @@ class Suite:
         self.case("all preset preserves NULL", lambda: self.roundtrip([
             "--mask=public.mask_edges:value:all",
         ], "SELECT value IS NULL FROM mask_edges WHERE id=1", "t"))
-        self.case("tc preset preserves short-value length", lambda: self.roundtrip([
-            "--mask=public.mask_edges:value:tc",
+        self.case("identity preset preserves short-value length", lambda: self.roundtrip([
+            "--mask=public.mask_edges:value:identity",
         ], "SELECT string_agg(length(value)::text, ',' ORDER BY id) FROM mask_edges WHERE id >= 2",
            "0,1,2,3,4,5"))
-        self.case("tc preset masks all characters in short values", lambda: self.roundtrip([
-            "--mask=public.mask_edges:value:tc",
+        self.case("identity preset masks all characters in short values", lambda: self.roundtrip([
+            "--mask=public.mask_edges:value:identity",
         ], "SELECT string_agg(value, ',' ORDER BY id) FROM mask_edges WHERE id >= 2",
            ",*,**,***,****,12*45"))
         self.case("all preset preserves empty string", lambda: self.roundtrip([
             "--mask=public.mask_edges:value:all",
         ], "SELECT length(value) FROM mask_edges WHERE id=2", "0"))
-        for preset in ("tc", "phone"):
+        self.case("market presets", lambda: self.roundtrip([
+            "--mask=public.customers:email:email",
+            "--mask=public.customers:full_name:name",
+            "--mask=public.customers:address:address",
+            "--mask=public.customers:iban:iban",
+            "--mask=public.customers:card_number:card",
+            "--mask=public.customers:uuid_value:uuid",
+        ], "SELECT email, full_name, address, iban, card_number, uuid_value "
+           "FROM customers WHERE id=1",
+           "u***@example.com|C*********|*********|DE89**************3000|************1111|"
+           "550e8400**********************0000"))
+        for preset in ("identity", "tc", "phone", "email", "name", "address", "iban", "card", "uuid"):
             self.case(preset + " preset preserves NULL", lambda preset=preset: self.roundtrip([
                 "--mask=public.mask_edges:value:" + preset,
             ], "SELECT value IS NULL FROM mask_edges WHERE id=1", "t"))

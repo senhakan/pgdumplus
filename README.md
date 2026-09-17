@@ -115,15 +115,22 @@ pg_dumpplus -d mydb -Fc \
 | Preset | Behavior | Example |
 | --- | --- | --- |
 | `all` | Replace characters with `*` | `Alice` → `*****` |
+| `identity` | Keep the first two and last two characters | `12345678901` → `12*******01` |
 | `phone` | Keep the last three characters | `05551234567` → `********567` |
-| `tc` | Keep the first two and last two characters | `12345678901` → `12*******01` |
+| `email` | Keep the first character and domain | `user@example.com` → `u***@example.com` |
+| `name` | Keep the first character | `Alice Smith` → `A**********` |
+| `address` | Mask the complete value, preserving length | `Main Street 1` → `*************` |
+| `iban` | Keep the first four and last four characters | `DE89370400440532013000` → `DE89**************3000` |
+| `card` | Keep the last four characters | `4111111111111111` → `************1111` |
+| `uuid` | Keep the first eight and last four characters | `550e8400-e29b-41d4-a716-446655440000` → `550e8400**********************0000` |
 
 Custom expressions are evaluated by PostgreSQL. Their results must fit the
 destination column's type and constraints. Presets return text. You can combine
 `--where` and `--mask` in the same dump.
 
-Presets preserve NULL values. `all` preserves empty strings; `tc` fully masks
-values of four characters or fewer.
+Presets preserve NULL values and empty strings. `identity` fully masks values of
+four characters or fewer. `tc` remains a backwards-compatible alias for
+`identity`.
 
 **Check mask warnings before sharing an export.** A missing, dropped, or
 generated column causes its mask to be skipped with a warning, not a failed

@@ -101,10 +101,10 @@ MASK_RESOLVE_C = r"""
 			sql_col = pg_strdup(fmtId(col));
 
 			/*
-			 * Hazir kaliplar: EXPR "tc" | "phone" | "all" ise KVKK/GDPR
-			 * standartlarina gore SQL ifadesi uretilir.
+			 * Hazir kaliplar, yaygin kimlik ve iletisim verisi kullanimlari icin
+			 * SQL ifadesine donusturulur. "tc" eski adiyla uyum icin korunur.
 			 */
-			if (strcmp(expr, "tc") == 0)
+			if (strcmp(expr, "identity") == 0 || strcmp(expr, "tc") == 0)
 			{
 				expr = psprintf("CASE WHEN length(%s::text) <= 4 THEN repeat('*', length(%s::text)) "
 								"ELSE left(%s::text, 2) || repeat('*', length(%s::text) - 4) || right(%s::text, 2) END",
@@ -115,6 +115,48 @@ MASK_RESOLVE_C = r"""
 			{
 				expr = psprintf("repeat('*', greatest(length(%s::text) - 3, 0)) || right(%s::text, 3)",
 								sql_col, sql_col);
+				text_ret = true;
+			}
+			else if (strcmp(expr, "email") == 0)
+			{
+				expr = psprintf("CASE WHEN position('@' IN %s::text) > 1 THEN "
+								"left(%s::text, 1) || repeat('*', greatest(position('@' IN %s::text) - 2, 0)) || "
+								"substring(%s::text FROM position('@' IN %s::text)) "
+								"ELSE repeat('*', length(%s::text)) END",
+								sql_col, sql_col, sql_col, sql_col, sql_col, sql_col);
+				text_ret = true;
+			}
+			else if (strcmp(expr, "name") == 0)
+			{
+				expr = psprintf("CASE WHEN %s IS NULL THEN NULL WHEN length(trim(%s::text)) > 0 THEN "
+								"left(trim(%s::text), 1) || repeat('*', greatest(length(trim(%s::text)) - 1, 0)) "
+								"ELSE '' END", sql_col, sql_col, sql_col, sql_col);
+				text_ret = true;
+			}
+			else if (strcmp(expr, "address") == 0)
+			{
+				expr = psprintf("repeat('*', length(%s::text))", sql_col);
+				text_ret = true;
+			}
+			else if (strcmp(expr, "iban") == 0)
+			{
+				expr = psprintf("CASE WHEN length(%s::text) <= 8 THEN repeat('*', length(%s::text)) "
+								"ELSE left(%s::text, 4) || repeat('*', length(%s::text) - 8) || right(%s::text, 4) END",
+								sql_col, sql_col, sql_col, sql_col, sql_col);
+				text_ret = true;
+			}
+			else if (strcmp(expr, "card") == 0 || strcmp(expr, "card_number") == 0)
+			{
+				expr = psprintf("CASE WHEN length(%s::text) <= 4 THEN repeat('*', length(%s::text)) "
+								"ELSE repeat('*', length(%s::text) - 4) || right(%s::text, 4) END",
+								sql_col, sql_col, sql_col, sql_col);
+				text_ret = true;
+			}
+			else if (strcmp(expr, "uuid") == 0)
+			{
+				expr = psprintf("CASE WHEN length(%s::text) <= 12 THEN repeat('*', length(%s::text)) "
+								"ELSE left(%s::text, 8) || repeat('*', length(%s::text) - 12) || right(%s::text, 4) END",
+								sql_col, sql_col, sql_col, sql_col, sql_col);
 				text_ret = true;
 			}
 			else if (strcmp(expr, "all") == 0)
@@ -612,7 +654,7 @@ find_unquoted_char(const char *s, char sep)
         where_help = 'printf(_("  --where=PATTERN:FILTER   dump only rows matching SQL FILTER for\\n"'
         t = rep_once(t, where_help,
             'printf(_("  --mask=PATTERN:COLUMN:EXPR   replace COLUMN value with EXPR in dumped\\n"'
-            '\t\t\t\t\t "                               data; EXPR: SQL or preset tc|phone|all\\n"));\n'
+            '\t\t\t\t\t "                               data; EXPR: SQL or preset identity|phone|email|name|address|iban|card|uuid|all\\n"));\n'
             + where_help, "dm-help")
         # 5e: cozum blogu — --where cozum bloğunun ardina
         mw = re.search(r"if \(tabledata_where_oids\.head == NULL\)\n[ \t]*\S[^\0]*?\n[ \t]*\}\n", t)

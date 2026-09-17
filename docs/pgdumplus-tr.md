@@ -115,15 +115,22 @@ pg_dumpplus -d mydb -Fc \
 | Kalıp | Davranış | Örnek |
 | --- | --- | --- |
 | `all` | Karakterleri `*` ile değiştirir | `Alice` → `*****` |
+| `identity` | İlk iki ve son iki karakteri korur | `12345678901` → `12*******01` |
 | `phone` | Son üç karakteri korur | `05551234567` → `********567` |
-| `tc` | İlk iki ve son iki karakteri korur | `12345678901` → `12*******01` |
+| `email` | İlk karakteri ve alan adını korur | `user@example.com` → `u***@example.com` |
+| `name` | İlk karakteri korur | `Alice Smith` → `A**********` |
+| `address` | Uzunluğu koruyarak tamamını maskeler | `Main Street 1` → `*************` |
+| `iban` | İlk dört ve son dört karakteri korur | `DE89370400440532013000` → `DE89**************3000` |
+| `card` | Son dört karakteri korur | `4111111111111111` → `************1111` |
+| `uuid` | İlk sekiz ve son dört karakteri korur | `550e8400-e29b-41d4-a716-446655440000` → `550e8400**********************0000` |
 
 Özel ifadeler PostgreSQL tarafından değerlendirilir. Sonuç, hedef kolonun veri
 tipine ve kısıtlarına uygun olmalıdır. Hazır kalıplar metin döndürür. `--where`
 ve `--mask` aynı dump içinde birlikte kullanılabilir.
 
-Hazır kalıplar NULL değerlerini korur. `all`, boş metni boş bırakır; `tc`, dört
-karakter veya daha kısa değerlerin tüm karakterlerini maskeler.
+Hazır kalıplar NULL ve boş değerleri korur. `identity`, dört karakter veya daha
+kısa değerlerin tüm karakterlerini maskeler. `tc`, geriye dönük uyumluluk için
+`identity` takma adı olarak desteklenir.
 
 **Dışa aktarılan veriyi paylaşmadan önce maskeleme uyarılarını kontrol edin.**
 Olmayan, silinmiş veya üretilen bir kolonun maskesi uyarıyla atlanır; dump hata
