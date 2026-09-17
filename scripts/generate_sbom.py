@@ -8,7 +8,8 @@ import sys
 
 def main():
     root = Path(sys.argv[1] if len(sys.argv) > 1 else "all-dist")
-    files = sorted(p for p in root.iterdir() if p.is_file())
+    files = sorted(p for p in root.iterdir()
+                   if p.is_file() and p.name != "SBOM.spdx.json")
     entries = []
     for path in files:
         digest = hashlib.sha256(path.read_bytes()).hexdigest()

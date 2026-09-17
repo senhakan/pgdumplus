@@ -192,7 +192,10 @@ jobs:
           merge-multiple: true
 
       - name: Generate SPDX SBOM
-        run: python3 scripts/generate_sbom.py all-dist > all-dist/SBOM.spdx.json
+        run: |
+          tmp_sbom=$(mktemp)
+          python3 scripts/generate_sbom.py all-dist > "$tmp_sbom"
+          mv "$tmp_sbom" all-dist/SBOM.spdx.json
 
       - name: Unified SHA256SUMS over the final asset set
         run: |
