@@ -2,7 +2,7 @@
 
 **PostgreSQL verinizi seçerek dışa aktarın, hassas kolonları maskeyle koruyun.**
 
-[İndir](https://github.com/senhakan/pgdumplus/releases/latest) · [English](../README.md) · [Geri bildirim](https://github.com/senhakan/pgdumplus/issues)
+[İndir](https://github.com/senhakan/pgdumpplus/releases/latest) · [English](../README.md) · [Geri bildirim](https://github.com/senhakan/pgdumpplus/issues)
 
 pg_dumpplus, PostgreSQL'in `pg_dump` aracına **satır filtreleme** ve **kolon
 maskeleme** ekler. Yakın tarihli kayıtları veya belirli bir müşterinin verilerini
@@ -36,7 +36,7 @@ kurulur. PostgreSQL'in `pg_dump` aracını temel alan bağımsız bir projedir.
 
 ## Kurulum
 
-[Son sürümden](https://github.com/senhakan/pgdumplus/releases/latest)
+[Son sürümden](https://github.com/senhakan/pgdumpplus/releases/latest)
 sisteminize uygun Linux **x86_64** paketini indirin.
 
 | Platform | Paket |
@@ -162,7 +162,7 @@ Paket aynı sürümün geri yükleme aracını içerir. Dump sürümüyle uyumlu
 ## Geri bildirim ve katkı
 
 Kullanım senaryolarınızı, özellik önerilerinizi ve hataları
-[Issues](https://github.com/senhakan/pgdumplus/issues) üzerinden paylaşabilirsiniz.
+[Issues](https://github.com/senhakan/pgdumpplus/issues) üzerinden paylaşabilirsiniz.
 PostgreSQL sürümünüzü ve hassas bilgilerden arındırılmış kısa bir örneği ekleyin.
 Pull request katkılarına açığız.
 

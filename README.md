@@ -3,10 +3,10 @@
 **A drop-in PostgreSQL `pg_dump` alternative for row filtering, column masking,
 and safer data exports.**
 
-[![Release](https://img.shields.io/github/v/release/senhakan/pgdumplus)](https://github.com/senhakan/pgdumplus/releases/latest)
+[![Release](https://img.shields.io/github/v/release/senhakan/pgdumpplus)](https://github.com/senhakan/pgdumpplus/releases/latest)
 [![License: PostgreSQL](https://img.shields.io/badge/license-PostgreSQL-blue)](LICENSE)
 
-[Download](https://github.com/senhakan/pgdumplus/releases/latest) · [Türkçe](docs/pgdumplus-tr.md) · [Report an issue](https://github.com/senhakan/pgdumplus/issues)
+[Download](https://github.com/senhakan/pgdumpplus/releases/latest) · [Türkçe](docs/pgdumplus-tr.md) · [Report an issue](https://github.com/senhakan/pgdumpplus/issues)
 
 `pg_dumpplus` extends PostgreSQL's `pg_dump` with **row-level filtering** and
 **column-level masking**. Export recent records, select a tenant's data, or
@@ -52,7 +52,7 @@ tools. It is an independent project based on PostgreSQL's `pg_dump`.
 ## Install
 
 Choose a Linux **x86_64** package from the
-[latest release](https://github.com/senhakan/pgdumplus/releases/latest).
+[latest release](https://github.com/senhakan/pgdumpplus/releases/latest).
 
 | Platform | Package |
 | --- | --- |
@@ -175,7 +175,7 @@ its version is compatible with the dump.
 ## Feedback and contributions
 
 Have a use case, feature idea, or bug to report?
-[Open an issue](https://github.com/senhakan/pgdumplus/issues). Include your
+[Open an issue](https://github.com/senhakan/pgdumpplus/issues). Include your
 PostgreSQL version and a minimal example with sensitive data removed.
 Pull requests are welcome.
 

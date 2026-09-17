@@ -170,7 +170,7 @@ Version: @VERSION@
 Release: @RELEASE@
 Summary: PostgreSQL dump client with row filtering and column masking
 License: PostgreSQL
-URL: https://github.com/senhakan/pgdumplus
+URL: https://github.com/senhakan/pgdumpplus
 Source0: @TARBALL@
 
 %description
