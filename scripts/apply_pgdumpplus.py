@@ -374,6 +374,23 @@ validate_all_mask_entries(TableInfo *tblinfo, int numTables)
 
 MASK_DRYRUN_C = r"""
 static void
+pgdp_json_quoted(const char *value)
+{
+	const unsigned char *p;
+	putchar('"');
+	for (p = (const unsigned char *) value; *p; p++)
+	{
+		if (*p == '"' || *p == '\\')
+			printf("\\%c", *p);
+		else if (*p < 32)
+			printf("\\u%04x", *p);
+		else
+			putchar(*p);
+	}
+	putchar('"');
+}
+
+static void
 pgdp_emit_plan(TableInfo *tblinfo, int numTables)
 {
 	DumpMaskEntry *me;
@@ -399,9 +416,11 @@ pgdp_emit_plan(TableInfo *tblinfo, int numTables)
 				if (strcmp(pgdp_plan_format, "json") == 0)
 				{
 					if (!first) printf(",");
-					printf("{\"table\":\"%s\",\"column\":\"%s\",\"type\":\"%s\",\"mask\":\"%s\",\"filter\":%s}",
-						   tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k],
-						   me->text_ret ? "preset" : "custom",
+					printf("{\"table\":"); pgdp_json_quoted(tbinfo->dobj.name);
+					printf(",\"column\":"); pgdp_json_quoted(me->colname);
+					printf(",\"type\":"); pgdp_json_quoted(tbinfo->atttypnames[k]);
+					printf(",\"mask\":"); pgdp_json_quoted(me->text_ret ? "preset" : "custom");
+					printf(",\"filter\":%s}",
 						   simple_oid_list_member(&tabledata_where_oids, tbinfo->dobj.catId.oid) ? "true" : "false");
 				}
 				else
