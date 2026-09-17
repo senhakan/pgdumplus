@@ -21,6 +21,8 @@ import uuid
 
 FIXTURE = """
 CREATE DOMAIN masked_label AS text CHECK (length(VALUE) < 100);
+CREATE FUNCTION pgdp_pause_true() RETURNS boolean
+LANGUAGE plpgsql VOLATILE AS $$BEGIN PERFORM pg_sleep(0.0001); RETURN true; END$$;
 CREATE TABLE customers (
     id integer PRIMARY KEY, full_name text, ssn varchar(11), phone text,
     email text, address text, iban text, card_number text, uuid_value text,
@@ -244,7 +246,7 @@ class Suite:
         timer.start()
         try:
             path, result = self.dump([
-                "--where=public.snapshot_probe:id > 0 AND (SELECT pg_sleep(0.0001) IS NULL)",
+                "--where=public.snapshot_probe:id > 0 AND public.pgdp_pause_true()",
             ], fmt="p")
             if result.returncode:
                 raise RuntimeError(result.stderr)
