@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "filters": [
+    {"table": "public.orders", "where": "tenant_id = 42"},
+    {"table": "public.customers", "where": "tenant_id = 42"}
+  ],
+  "masks": [
+    {"table": "public.customers", "column": "email", "preset": "email"}
+  ]
+}

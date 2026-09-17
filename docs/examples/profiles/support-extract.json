@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "filters": [
+    {"table": "public.orders", "where": "id <= 1000"}
+  ],
+  "masks": [
+    {"table": "public.customers", "column": "phone", "preset": "phone"},
+    {"table": "public.customers", "column": "address", "expression": "left(address, 3) || '***'"}
+  ]
+}

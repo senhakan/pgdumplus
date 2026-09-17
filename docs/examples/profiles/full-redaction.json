@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "masks": [
+    {"table": "public.customers", "column": "full_name", "preset": "all"},
+    {"table": "public.customers", "column": "email", "preset": "all"},
+    {"table": "public.customers", "column": "phone", "preset": "all"}
+  ]
+}

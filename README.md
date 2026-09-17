@@ -97,6 +97,8 @@ version and the source commit used for that build.
 Profile files are not supported yet. The future strict JSON contract is kept in
 [`docs/design/profile-schema.json`](docs/design/profile-schema.json); current
 clients do not accept a `--profile` option.
+Design examples for tenant subsets, support extracts and full redaction are in
+[`docs/examples/profiles/`](docs/examples/profiles/).
 
 All supported majors can be installed together. Files live under
 `/opt/pgdumpplus/<major>/`, with command links in `/usr/bin/`. System `pg_dump`
