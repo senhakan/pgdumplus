@@ -21,7 +21,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | A2 | IN_PROGRESS | A1 | Catalog-only dry-run and JSON schema (A2) |
 | A3 | IN_PROGRESS | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | READY | — | Version manifest, supported bases, package identity/order (B1) |
-| B2 | READY | — | Source hashes, CI permissions, SBOM/provenance (B2) |
+| B2 | IN_PROGRESS | — | Source hashes, CI permissions, SBOM/provenance (B2) |
 | B3 | BLOCKED | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
 | C1 | BLOCKED | A2 | Compiled profile reader and tested examples (C1) |
 | C2-design | BLOCKED | A3 | Key/type/execution design and review (C2-design) |
