@@ -107,5 +107,6 @@ jobs:
             -f /tmp/cross-major.dump >/tmp/cross-major.out 2>/tmp/cross-major.err
           status=$?
           set -e
+          cat /tmp/cross-major.err
           [[ $status -ne 0 ]]
           grep -Fq 'server major 18 is newer than this client major 17' /tmp/cross-major.err
