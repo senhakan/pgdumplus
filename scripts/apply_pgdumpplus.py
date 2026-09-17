@@ -381,7 +381,7 @@ pgdp_emit_plan(TableInfo *tblinfo, int numTables)
 	bool first = true;
 
 	if (strcmp(pgdp_plan_format, "json") == 0)
-		printf("{\\\"schema_version\\\":1,\\\"masks\\\":[");
+		printf("{\"schema_version\":1,\"masks\":[");
 	else
 		printf("pg_dumpplus dry-run plan\n");
 	for (me = dump_mask_entries; me; me = me->next)
