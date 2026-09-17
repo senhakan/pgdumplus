@@ -99,6 +99,9 @@ Profile files are not supported yet. The future strict JSON contract is kept in
 clients do not accept a `--profile` option.
 Design examples for tenant subsets, support extracts and full redaction are in
 [`docs/examples/profiles/`](docs/examples/profiles/).
+The build-time contract checker is `scripts/validate_profile.py`; it rejects
+duplicate keys, unknown fields and malformed profile entries without external
+Python packages.
 
 All supported majors can be installed together. Files live under
 `/opt/pgdumpplus/<major>/`, with command links in `/usr/bin/`. System `pg_dump`

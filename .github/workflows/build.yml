@@ -32,9 +32,7 @@ jobs:
         run: |
           python3 scripts/public_audit.py
           python3 -m json.tool docs/design/profile-schema.json >/dev/null
-          for profile in docs/examples/profiles/*.json; do
-            python3 -m json.tool "$profile" >/dev/null
-          done
+          python3 scripts/validate_profile.py docs/examples/profiles/*.json
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             V="$REQUESTED_VERSIONS"
           else
