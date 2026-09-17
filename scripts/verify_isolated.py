@@ -203,6 +203,16 @@ class Suite:
         if plan["masks"][0]["mask"] != "custom":
             raise AssertionError("custom expression was not identified in dry-run plan")
 
+    def dry_run_option_errors(self):
+        path = self.work / "dry-run-invalid.dump"
+        for options, fragment in (
+            (["--dry-run", "-f", path], "cannot be used"),
+            (["--plan-format=json"], "requires --dry-run"),
+        ):
+            result = self.run([self.args.binary, "-d", self.source, *options], check=False)
+            if result.returncode == 0 or fragment not in result.stderr:
+                raise AssertionError("expected dry-run option failure: " + result.stderr)
+
     def checks(self):
         self.case("unfiltered dump matches upstream (random guards normalized)", self.unfiltered)
         for fmt, extra in (("c", []), ("p", []), ("p", ["--inserts"]),
@@ -242,6 +252,7 @@ class Suite:
         self.case("catalog-only dry-run JSON plan", lambda: self.dry_run("json"))
         self.case("dry-run JSON quoted identifiers", self.dry_run_quoted_json)
         self.case("dry-run does not execute custom SQL", self.dry_run_does_not_execute_custom_sql)
+        self.case("dry-run option combinations fail clearly", self.dry_run_option_errors)
         self.case("preset on non-text column fails before export", lambda: self.error(
             "--mask=public.customers:birth_year:all", "yields text"))
         self.case("mask on generated column fails before export", lambda: self.error(
