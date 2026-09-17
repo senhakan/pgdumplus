@@ -39,6 +39,14 @@ def source_hash(version):
     return None
 
 
+def project_version():
+    with open(ROOT / "support-matrix.json", encoding="utf-8") as stream:
+        value = json.load(stream).get("project_version")
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", value):
+        raise RuntimeError("support-matrix.json has an invalid project_version")
+    return value
+
+
 def run(argv, cwd=None, env=None, log=None):
     print("+ " + " ".join(str(v) for v in argv), flush=True)
     if log:
@@ -85,6 +93,7 @@ def main():
     if not re.fullmatch(r"[1-9][0-9]*", args.revision):
         parser.error("revision must be a positive integer")
     major = args.version.split(".")[0]
+    project = project_version()
     label = os_label()
     if not re.fullmatch(r"[a-z0-9.]+", label):
         parser.error("unsupported OS label")
@@ -191,14 +200,15 @@ def main():
 Name: pgdumpplus-@MAJOR@
 Version: @VERSION@
 Release: @RELEASE@
-Summary: PostgreSQL dump client with row filtering and column masking
+Summary: pg_dumpplus @PROJECT@ PostgreSQL @UPSTREAM@ dump client
 License: PostgreSQL
 URL: https://github.com/senhakan/pgdumpplus
 Source0: @TARBALL@
 
 %description
-Precompiled pg_dumpplus and matching restore client. No server or compiler is
-installed. Includes a private libpq; system PostgreSQL tools are unchanged.
+Precompiled pg_dumpplus @PROJECT@ client built from PostgreSQL @UPSTREAM@.
+No server or compiler is installed. Includes a private libpq; system
+PostgreSQL tools are unchanged.
 
 %prep
 %setup -q -c -T -a0
@@ -210,7 +220,8 @@ cp -a opt usr %{buildroot}/
 %files
 /opt/pgdumpplus/@MAJOR@
 @COMMANDS@
-""".replace("@MAJOR@", major).replace("@VERSION@", args.version)
+        """.replace("@MAJOR@", major).replace("@VERSION@", project)
+                        .replace("@PROJECT@", project).replace("@UPSTREAM@", args.version)
                         .replace("@RELEASE@", release).replace("@TARBALL@", tarball.name)
                         .replace("@COMMANDS@", "\n".join("/usr/bin/" + n for n in aliases)))
         run(["rpmbuild", "--define", "_topdir " + str(top), "-bb", spec], log=work / "rpm.log")
@@ -223,7 +234,7 @@ cp -a opt usr %{buildroot}/
         package_name = "pgdumpplus-" + major
         native_arch = run(["dpkg", "--print-architecture"]).strip()
         suffix = {"ubuntu22.04": "u2204", "ubuntu24.04": "u2404", "debian12": "d12"}.get(label, label.replace(".", ""))
-        version = args.version + "-" + args.revision + suffix
+        version = project + "-" + args.revision + suffix
         (work / "debian").mkdir()
         (work / "debian/control").write_text(
             "Source: " + package_name + "\nSection: database\nPriority: optional\n"
@@ -239,8 +250,8 @@ cp -a opt usr %{buildroot}/
             "Package: " + package_name + "\nVersion: " + version + "\nArchitecture: " + native_arch +
             "\nSection: database\nPriority: optional\nDepends: " + depends +
             "\nMaintainer: senhakan <senhakan@users.noreply.github.com>\n"
-            "Description: PostgreSQL dump client with row filtering and column masking\n"
-            " Precompiled pg_dumpplus, matching restore client and private libpq.\n"
+            "Description: pg_dumpplus " + project + " PostgreSQL " + args.version + " dump client\n"
+            " Precompiled pg_dumpplus matching restore client and private libpq.\n"
             " No server or compiler is installed. System PostgreSQL tools are unchanged.\n")
         package = output / (package_name + "_" + version + "_" + native_arch + ".deb")
         run(["dpkg-deb", "--build", "--root-owner-group", root, package])
