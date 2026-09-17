@@ -31,6 +31,7 @@ jobs:
           REQUESTED_VERSIONS: ${{ inputs.pg_versions }}
         run: |
           python3 scripts/public_audit.py
+          python3 -m json.tool docs/design/profile-schema.json >/dev/null
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             V="$REQUESTED_VERSIONS"
           else
