@@ -22,15 +22,17 @@ FIXTURE = """
 CREATE TABLE customers (
     id integer PRIMARY KEY, full_name text, ssn varchar(11), phone text,
     email text, address text, iban text, card_number text, uuid_value text,
+    native_uuid uuid,
     birth_year integer,
     doubled integer GENERATED ALWAYS AS (id * 2) STORED
 );
 INSERT INTO customers (id, full_name, ssn, phone, email, address, iban,
-                       card_number, uuid_value, birth_year)
+                       card_number, uuid_value, birth_year, native_uuid)
 SELECT g, 'Customer ' || g, '12345678901', '05551234567',
        'user' || g || '@example.com', 'Address ' || g,
        'DE89370400440532013000', '4111111111111111',
-       '550e8400-e29b-41d4-a716-446655440000', 1980 + g % 30
+       '550e8400-e29b-41d4-a716-446655440000', 1980 + g % 30,
+       '550e8400-e29b-41d4-a716-446655440000'::uuid
 FROM generate_series(1,100) g;
 CREATE TABLE orders (
     id integer PRIMARY KEY, customer_id integer REFERENCES customers(id),
@@ -257,6 +259,8 @@ class Suite:
             "--mask=public.customers:birth_year:all", "yields text"))
         self.case("mask on generated column fails before export", lambda: self.error(
             "--mask=public.customers:doubled:all", "generated"))
+        self.case("text preset rejects native UUID", lambda: self.error(
+            "--mask=public.customers:native_uuid:all", "yields text"))
         for name, option, fragment in (
             ("where separator", "--where=public.orders", "missing"),
             ("where table", "--where=public.no_such_table:id=1", "no matching"),
