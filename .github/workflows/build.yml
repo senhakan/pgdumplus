@@ -180,7 +180,9 @@ jobs:
           [[ ${#packages[@]} == 1 ]]
           export EXPECTED_PROJECT_VERSION=$(sed -n 's/.*"project_version": "\([0-9.]*\)".*/\1/p' support-matrix.json)
           [[ -n "$EXPECTED_PROJECT_VERSION" ]]
-          bash scripts/smoke_package.sh deb "${PGVER%%.*}" "${packages[0]}"
+          old=$(mktemp --suffix=.deb)
+          bash scripts/make_deb_upgrade_fixture.sh "${packages[0]}" "$old"
+          bash scripts/smoke_package.sh deb "${PGVER%%.*}" "$old" "${packages[0]}"
 
   release:
     needs: [build, build-deb, verify, smoke-rpm, smoke-deb]
