@@ -17,7 +17,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 
 | ID | Status | Dependencies | Deliverable (PLAN section) |
 | --- | --- | --- | --- |
-| A1 | IN_PROGRESS | — | Strict masks and regression coverage (A1); local PG17.5 candidate passes 40 checks, CI pending |
+| A1 | DONE | — | Strict masks and regression coverage (A1); local PG17.5 and CI PG13/17 checks pass |
 | A2 | BLOCKED | A1 | Catalog-only dry-run and JSON schema (A2) |
 | A3 | BLOCKED | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | READY | — | Version manifest, supported bases, package identity/order (B1) |
@@ -53,7 +53,8 @@ These are target milestones, not published versions or calendar promises.
 | --- | --- | --- | --- |
 | Baseline | f3285c3 / 35253870996 | CI success | Existing matrix only |
 | Planning | Working tree, 2026-09-17 | Plan and agent handoff created | No implementation or release performed |
-| A1 local | Working tree, 2026-09-17 | PG17.5 candidate build + isolated suite: 40 passed | CI and PG13 candidate still required |
+| A1 local | 0ba5cf8 working tree | PG17.5 candidate build + isolated suite: 40 passed | CI evidence recorded below |
+| A1 CI | [35256202241](https://github.com/senhakan/pgdumpplus/actions/runs/35256202241) | PG13/17 builds, 40-check integration suites and package smoke jobs passed | Release publication remains a separate B3 gate |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
