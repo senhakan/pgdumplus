@@ -170,6 +170,7 @@ jobs:
           [[ -n "$old" && -n "$newer" ]]
           export EXPECTED_PROJECT_VERSION=$(sed -n 's/.*"project_version": "\([0-9.]*\)".*/\1/p' support-matrix.json)
           [[ -n "$EXPECTED_PROJECT_VERSION" ]]
+          export EXPECTED_OLDER_VERSION=1.1.0
           bash scripts/smoke_package.sh rpm "${PGVER%%.*}" "$old" "$newer"
 
   smoke-deb:
@@ -209,6 +210,7 @@ jobs:
           old=$(mktemp --suffix=.deb)
           rm -f "$old"
           bash scripts/make_deb_upgrade_fixture.sh "${packages[0]}" "$old"
+          export EXPECTED_OLDER_VERSION=1.1.0
           bash scripts/smoke_package.sh deb "${PGVER%%.*}" "$old" "${packages[0]}"
 
   release:

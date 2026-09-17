@@ -32,11 +32,12 @@ version() {
   fi
 }
 verify() {
+  expected_project=${1:-${EXPECTED_PROJECT_VERSION:-}}
   "pg_dumpplus-$MAJOR" --version
   info=$("pg_dumpplus-$MAJOR" --build-info)
   [[ "$info" == pg_dumpplus\ project\ *\;\ PostgreSQL\ *\;\ source\ * ]]
-  if [[ -n "${EXPECTED_PROJECT_VERSION:-}" ]]; then
-    [[ "$info" == *"project ${EXPECTED_PROJECT_VERSION};"* ]]
+  if [[ -n "$expected_project" ]]; then
+    [[ "$info" == *"project ${expected_project};"* ]]
   fi
   "pg_restoreplus-$MAJOR" --version
   "pg_dumpplus-$MAJOR" --help | grep -- --mask
@@ -51,12 +52,12 @@ verify() {
 }
 install_package "$OLDER"
 BEFORE=$(version)
-verify
+verify "${EXPECTED_OLDER_VERSION:-${EXPECTED_PROJECT_VERSION:-}}"
 if [[ -n "$NEWER" ]]; then
   install_package "$NEWER"
   AFTER=$(version)
   [[ "$BEFORE" != "$AFTER" ]]
-  verify
+  verify "${EXPECTED_PROJECT_VERSION:-}"
   echo "PASS upgrade $BEFORE -> $AFTER"
 fi
 if [[ "$FORMAT" == rpm ]]; then
