@@ -19,7 +19,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | ID | Status | Dependencies | Deliverable (PLAN section) |
 | --- | --- | --- | --- |
 | A1 | DONE | — | Strict masks and regression coverage (A1); local PG17.5 and CI PG13/17 checks pass |
-| A2 | IN_PROGRESS | A1 | Catalog-only dry-run and JSON schema (A2) |
+| A2 | DONE | A1 | Catalog-only dry-run and JSON schema (A2) |
 | A3 | IN_PROGRESS | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | IN_PROGRESS | — | Version manifest, supported bases, package identity/order (B1) |
 | B2 | IN_PROGRESS | — | Source hashes, CI permissions, SBOM/provenance (B2) |
@@ -65,6 +65,7 @@ These are target milestones, not published versions or calendar promises.
 | B1 source refresh | local + support-matrix.json | PostgreSQL 13.23 (legacy), 17.11 and 18.6 source hashes recorded; PG18.6 patcher clean/idempotence checks passed | Matrix result is recorded in the current-matrix row |
 | B1 current matrix | [35270331753](https://github.com/senhakan/pgdumpplus/actions/runs/35270331753) | Commit 30f45cf: PG13.23/17.11/18.6 builds, isolated dump/restore, all DEB/RPM smoke jobs passed | Project-version-only upgrade ordering and release promotion remain B1/B3 work |
 | B2 action pinning | 4fcdeae | All third-party workflow actions are pinned to reviewed immutable commit SHAs; Dependabot remains configured for update proposals | Release attestation itself is exercised only by a real candidate tag |
+| A2 final | [35270987562](https://github.com/senhakan/pgdumpplus/actions/runs/35270987562) | Commit fc754c3: dry-run text/JSON, identifier escaping, custom-SQL non-execution and option error checks passed across PG13.23/17.11/18.6; all package smoke jobs passed | Custom expressions are reported, not fully type/runtime evaluated in dry-run |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
