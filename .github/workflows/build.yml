@@ -226,6 +226,18 @@ jobs:
             all-dist/*
             SHA256SUMS.txt
 
+      - name: Verify release attestations
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r path; do
+            gh attestation verify "$path" --repo "$GITHUB_REPOSITORY" >/dev/null
+          done < <(find all-dist -maxdepth 1 -type f -print | sort)
+          gh attestation verify SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" >/dev/null
+
       - name: Publish GitHub Release (tags)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2.3.2
