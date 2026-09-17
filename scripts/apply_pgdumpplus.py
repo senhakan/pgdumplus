@@ -750,6 +750,7 @@ find_unquoted_char(const char *s, char sep)
             "/* pg_dumpplus: forward decls (tanimlar fmtCopyColumnList oncesi) */\n"
             "static char *mask_expr_for(Oid relid, const char *colname);\n"
             "static bool table_has_masks(TableInfo *tbinfo);\n"
+            "static void pgdp_emit_plan(TableInfo *tblinfo, int numTables);\n"
             "static const char *fmtMaskedColumnList(const TableInfo *ti,\n"
 			"\t\t\t\t\t\t\t\t\t\t\tPQExpBuffer buffer);\n"
 			"static void validate_all_mask_entries(TableInfo *tblinfo, int numTables);",
