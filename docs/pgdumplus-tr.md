@@ -148,8 +148,9 @@ başarısız kılar. Hata sonrasında oluşmuş kısmi çıktıyı kullanmayın.
 yalnızca belirttiğiniz kolonları etkiler; veritabanını otomatik olarak anonimleştirmez.
 
 Hazır kalıplar karakter tabanlı dönüşümlerdir; e-posta, IBAN, kart veya başka
-bir iş formatının geçerliliğini denetlemez. Alt sistem kısıtlarınızı kendi
-verilerinizle ayrıca test edin.
+bir iş formatının geçerliliğini denetlemez. Doğrudan metin uyumlu kolonlar için
+kullanılır; text domain veya kısıtlı tiplerde açık cast içeren özel ifade
+kullanın ve sonucu kendi kısıtlarınızla ayrıca test edin.
 
 Partition tablolarında seçim hiyerarşisi tutarlı olmalıdır. Seçim dışında kalan
 bir partition child kolonuna maske verilirse komut açıkça hata verir; kural

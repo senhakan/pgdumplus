@@ -181,8 +181,9 @@ partial output after a failure. Masking only affects the specified columns; it
 does not automatically anonymize the database.
 
 Presets are character-based transformations; they do not validate email, IBAN,
-card or other business formats. Test resulting values against your own
-constraints before relying on them downstream.
+card or other business formats. They require a directly text-compatible column;
+for a text domain or another constrained type, use a custom expression with an
+explicit cast and test the result against your constraints.
 
 Partitioned tables require selecting the partition hierarchy consistently. A
 mask that targets a partition child excluded by the table selection fails

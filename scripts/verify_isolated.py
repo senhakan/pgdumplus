@@ -19,10 +19,11 @@ import uuid
 
 
 FIXTURE = """
+CREATE DOMAIN masked_label AS text CHECK (length(VALUE) < 100);
 CREATE TABLE customers (
     id integer PRIMARY KEY, full_name text, ssn varchar(11), phone text,
     email text, address text, iban text, card_number text, uuid_value text,
-    native_uuid uuid,
+    native_uuid uuid, domain_label masked_label,
     birth_year integer,
     doubled integer GENERATED ALWAYS AS (id * 2) STORED
 );
@@ -32,7 +33,8 @@ SELECT g, 'Customer ' || g, '12345678901', '05551234567',
        'user' || g || '@example.com', 'Address ' || g,
        'DE89370400440532013000', '4111111111111111',
        '550e8400-e29b-41d4-a716-446655440000', 1980 + g % 30,
-       '550e8400-e29b-41d4-a716-446655440000'::uuid
+       '550e8400-e29b-41d4-a716-446655440000'::uuid,
+       ('Ürün  ' || g)::masked_label
 FROM generate_series(1,100) g;
 CREATE TABLE orders (
     id integer PRIMARY KEY, customer_id integer REFERENCES customers(id),
@@ -260,6 +262,9 @@ class Suite:
             "--mask=public.customers:full_name:upper(full_name)",
             "--mask=public.customers:birth_year:2000",
         ], "SELECT full_name, birth_year FROM customers WHERE id=2", "CUSTOMER 2|2000"))
+        self.case("custom mask on text domain", lambda: self.roundtrip([
+            "--mask=public.customers:domain_label:upper(domain_label)::masked_label",
+        ], "SELECT domain_label FROM customers WHERE id=1", "ÜRN  1"))
         self.case("missing mask column fails before export", self.invalid_mask)
         self.case("mask on excluded table fails before export", self.invalid_mask_selection)
         self.case("duplicate mask fails before export", self.duplicate_mask)
@@ -274,6 +279,8 @@ class Suite:
             "--mask=public.customers:doubled:all", "generated"))
         self.case("text preset rejects native UUID", lambda: self.error(
             "--mask=public.customers:native_uuid:all", "yields text"))
+        self.case("text preset rejects domain without base-type proof", lambda: self.error(
+            "--mask=public.customers:domain_label:all", "yields text"))
         for name, option, fragment in (
             ("where separator", "--where=public.orders", "missing"),
             ("where table", "--where=public.no_such_table:id=1", "no matching"),
