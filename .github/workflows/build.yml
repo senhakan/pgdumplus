@@ -237,7 +237,7 @@ jobs:
             Choose the package for your OS: EL8 RPM, Ubuntu 22.04/24.04 or Debian 12 DEB.
             No compilation or PostgreSQL server installation is needed on the client.
             Install with `dnf install ./<pkg>.rpm` or `apt install ./<pkg>.deb`.
-            Run `pg_dumpplus-<major> --version`; PG17 also supplies `pg_dumpplus`.
+            Run `pg_dumpplus-<major> --version`; PG18 also supplies `pg_dumpplus`.
             Tarballs share the same opt/ and usr/ layout. Runtime dependencies remain OS-specific.
 
       - name: Upload workflow artifacts (dispatch builds)
