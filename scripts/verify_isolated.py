@@ -193,6 +193,16 @@ class Suite:
         if plan["masks"][0]["table"] != "Odd:Table" or plan["masks"][0]["column"] != "Secret:Value":
             raise AssertionError("quoted identifier was not escaped in JSON plan")
 
+    def dry_run_does_not_execute_custom_sql(self):
+        result = self.run([
+            self.args.binary, "-d", self.source, "--no-owner", "--no-privileges",
+            "--dry-run", "--plan-format=json",
+            "--mask=public.customers:email:current_setting('pgdp_missing_setting')",
+        ])
+        plan = json.loads(result.stdout)
+        if plan["masks"][0]["mask"] != "custom":
+            raise AssertionError("custom expression was not identified in dry-run plan")
+
     def checks(self):
         self.case("unfiltered dump matches upstream (random guards normalized)", self.unfiltered)
         for fmt, extra in (("c", []), ("p", []), ("p", ["--inserts"]),
@@ -231,6 +241,7 @@ class Suite:
         self.case("catalog-only dry-run text plan", self.dry_run)
         self.case("catalog-only dry-run JSON plan", lambda: self.dry_run("json"))
         self.case("dry-run JSON quoted identifiers", self.dry_run_quoted_json)
+        self.case("dry-run does not execute custom SQL", self.dry_run_does_not_execute_custom_sql)
         self.case("preset on non-text column fails before export", lambda: self.error(
             "--mask=public.customers:birth_year:all", "yields text"))
         self.case("mask on generated column fails before export", lambda: self.error(
