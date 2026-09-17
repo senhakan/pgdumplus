@@ -102,6 +102,16 @@ pg_dumpplus -d mydb -t public.orders -Fc \
 
 ## Kolon maskeleme
 
+Satırları okumadan ve dump dosyası oluşturmadan maskeleme planını önizleyin:
+
+```bash
+pg_dumpplus -d mydb --dry-run --plan-format=json \
+  --mask='public.customers:email:email'
+```
+
+`--dry-run` yalnızca planı standart çıktıya yazar. JSON çıktısı
+`schema_version: 1` kullanır; özel SQL ifadeleri raporlanır ancak çalıştırılmaz.
+
 Değiştirilecek her kolon için `--mask='tablo:kolon:ifade'` kullanın:
 
 ```bash

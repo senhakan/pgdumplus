@@ -116,6 +116,16 @@ pg_dumpplus -d mydb -t public.orders -Fc \
 
 ## Mask columns
 
+Preview a catalog-only masking plan without reading table rows or creating a dump:
+
+```bash
+pg_dumpplus -d mydb --dry-run --plan-format=json \
+  --mask='public.customers:email:email'
+```
+
+`--dry-run` writes only the plan to standard output. JSON uses
+`schema_version: 1`; custom masking SQL is reported but not executed.
+
 Use `--mask='table:column:expression'` for each column to replace:
 
 ```bash
