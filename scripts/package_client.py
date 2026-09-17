@@ -126,19 +126,18 @@ def main():
                 raise RuntimeError("unexpected source archive member: " + member.name)
         tar.extractall(str(work))
     original = {name: (source / name).read_bytes() for name in PATCH_FILES}
-    print(run([sys.executable, HERE / "test_patcher.py", source]), end="")
-    print(run([sys.executable, HERE / "apply_pgdumpplus.py", source]), end="")
-    prefix = "/opt/pgdumpplus/" + major
     env = dict(os.environ)
     try:
         commit = subprocess.check_output(
             ["git", "rev-parse", "--short=12", "HEAD"],
-            cwd=str(HERE.parent), text=True).strip()
+            cwd=str(HERE.parent), universal_newlines=True).strip()
     except (OSError, subprocess.CalledProcessError):
         commit = "unknown"
-    cppflags = env.get("CPPFLAGS", "")
-    env["CPPFLAGS"] = (cppflags + " -DPGDUMPPLUS_PROJECT_VERSION=\\\"" + project
-                        + "\\\" -DPGDUMPPLUS_SOURCE_COMMIT=\\\"" + commit + "\\\"").strip()
+    env["PGDUMPPLUS_PROJECT_VERSION"] = project
+    env["PGDUMPPLUS_SOURCE_COMMIT"] = commit
+    print(run([sys.executable, HERE / "test_patcher.py", source]), end="")
+    print(run([sys.executable, HERE / "apply_pgdumpplus.py", source], env=env), end="")
+    prefix = "/opt/pgdumpplus/" + major
     # Make reduces $$ to $, then the shell quotes preserve the literal ELF token.
     env["LDFLAGS"] = "-Wl,-rpath,'$$ORIGIN/../lib',--enable-new-dtags"
     run(["./configure", "--prefix=" + prefix, "--without-readline", "--without-icu",

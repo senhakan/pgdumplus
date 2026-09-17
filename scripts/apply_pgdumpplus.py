@@ -199,6 +199,20 @@ BUILD_INFO_C = r'''
 #endif
 '''
 
+def build_info_block():
+    """Return compile-time identity without adding fragile quoted CPPFLAGS."""
+    project = os.environ.get("PGDUMPPLUS_PROJECT_VERSION", "unknown")
+    commit = os.environ.get("PGDUMPPLUS_SOURCE_COMMIT", "unknown")
+    if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", project):
+        project = "unknown"
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", commit):
+        commit = "unknown"
+    return (BUILD_INFO_C
+            .replace('#define PGDUMPPLUS_PROJECT_VERSION "unknown"',
+                     '#define PGDUMPPLUS_PROJECT_VERSION "' + project + '"')
+            .replace('#define PGDUMPPLUS_SOURCE_COMMIT "unknown"',
+                     '#define PGDUMPPLUS_SOURCE_COMMIT "' + commit + '"'))
+
 MASK_HELPERS_C = r"""/*
  * pg_dumpplus: Return the masking SQL expression registered for
  * (relid, colname) via --mask, or NULL.  Skipped entries count as NULL.
@@ -615,7 +629,7 @@ find_unquoted_char(const char *s, char sep)
     PG13 = "pg_fatal(" not in t      # PG13'te pg_fatal yok -> fatal()
     if "pg_dumpplus" not in t:
         # 4a: statik listeler
-        t = BUILD_INFO_C + t
+        t = build_info_block() + t
         t = rep_once(t, "static SimpleOidList tabledata_exclude_oids = {NULL, NULL};",
             "static SimpleOidList tabledata_exclude_oids = {NULL, NULL};\n"
             "/* pg_dumpplus: --where desenleri ve cozumlenmis OID'leri */\n"
