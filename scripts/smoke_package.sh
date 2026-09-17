@@ -35,6 +35,9 @@ verify() {
   "pg_dumpplus-$MAJOR" --version
   info=$("pg_dumpplus-$MAJOR" --build-info)
   [[ "$info" == pg_dumpplus\ project\ *\;\ PostgreSQL\ *\;\ source\ * ]]
+  if [[ -n "${EXPECTED_PROJECT_VERSION:-}" ]]; then
+    [[ "$info" == *"project ${EXPECTED_PROJECT_VERSION};"* ]]
+  fi
   "pg_restoreplus-$MAJOR" --version
   "pg_dumpplus-$MAJOR" --help | grep -- --mask
   "pg_dumpplus-$MAJOR" --help | grep -- --where
