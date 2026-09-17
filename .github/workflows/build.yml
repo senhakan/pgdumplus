@@ -181,6 +181,7 @@ jobs:
           export EXPECTED_PROJECT_VERSION=$(sed -n 's/.*"project_version": "\([0-9.]*\)".*/\1/p' support-matrix.json)
           [[ -n "$EXPECTED_PROJECT_VERSION" ]]
           old=$(mktemp --suffix=.deb)
+          rm -f "$old"
           bash scripts/make_deb_upgrade_fixture.sh "${packages[0]}" "$old"
           bash scripts/smoke_package.sh deb "${PGVER%%.*}" "$old" "${packages[0]}"
 
