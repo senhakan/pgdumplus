@@ -61,9 +61,9 @@ Choose a Linux **x86_64** package from the
 | Ubuntu 24.04 | `1u2404_amd64.deb` |
 | Debian 12 | `1d12_amd64.deb` |
 
-Packages are available for PostgreSQL 13 (legacy) and 17 (maintained). Choose
-the matching major version for those servers; use the PostgreSQL 17 package for
-servers on 14–16.
+Packages are available for PostgreSQL 13 (legacy), 17 and 18 (maintained).
+Choose the matching major version; use the PostgreSQL 17 package for servers
+on 14–16.
 Do not use a client older than your server's major version.
 
 For example, install the PostgreSQL 17 package for Ubuntu 24.04:
@@ -79,14 +79,14 @@ server installation is required. The package manager installs runtime libraries.
 
 | Command | Purpose |
 | --- | --- |
-| `pg_dumpplus-17` / `pg_dumpplus-13` | Use a specific client major |
-| `pg_dumpplus` | Default command supplied by the PostgreSQL 17 package |
-| `pg_restoreplus-17` / `pg_restoreplus-13` | Matching archive restore client |
+| `pg_dumpplus-18` / `pg_dumpplus-17` / `pg_dumpplus-13` | Use a specific client major |
+| `pg_dumpplus` | Default command supplied by the PostgreSQL 18 package |
+| `pg_restoreplus-18` / `pg_restoreplus-17` / `pg_restoreplus-13` | Matching archive restore client |
 
-Both majors can be installed together. Files live under
+All supported majors can be installed together. Files live under
 `/opt/pgdumpplus/<major>/`, with command links in `/usr/bin/`. System `pg_dump`
-and `pg_restore` commands are unchanged. Removing PG17 removes the unversioned
-command; `pg_dumpplus-13` remains available if installed.
+and `pg_restore` commands are unchanged. Removing PG18 removes the unversioned
+command; other versioned clients remain available if installed.
 
 Tarballs use the same `opt/` and `usr/` layout and can also be extracted into a
 private directory. Run `<directory>/usr/bin/pg_dumpplus-17` from there. Choose

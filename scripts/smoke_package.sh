@@ -7,7 +7,7 @@ MAJOR=${2:?}
 OLDER=${3:?}
 NEWER=${4:-}
 [[ -f /.dockerenv || -f /run/.containerenv ]] || { echo 'Disposable container required' >&2; exit 1; }
-[[ "$MAJOR" == 13 || "$MAJOR" == 17 ]] || exit 1
+[[ "$MAJOR" == 13 || "$MAJOR" == 17 || "$MAJOR" == 18 ]] || exit 1
 if command -v gcc || command -v make; then
   echo 'Use a clean runtime image without build tools' >&2
   exit 1
@@ -42,7 +42,7 @@ verify() {
   ldd "/opt/pgdumpplus/$MAJOR/bin/pg_dumpplus"
   if ldd "/opt/pgdumpplus/$MAJOR/bin/pg_dumpplus" | grep 'not found'; then exit 1; fi
   if command -v gcc || command -v make; then exit 1; fi
-  if [[ "$MAJOR" == 17 ]]; then pg_dumpplus --version; fi
+  if [[ "$MAJOR" == 18 ]]; then pg_dumpplus --version; fi
 }
 install_package "$OLDER"
 BEFORE=$(version)
@@ -62,5 +62,5 @@ fi
 [[ ! -e /opt/pgdumpplus/$MAJOR ]]
 [[ ! -L /usr/bin/pg_dumpplus-$MAJOR ]]
 [[ ! -L /usr/bin/pg_restoreplus-$MAJOR ]]
-if [[ "$MAJOR" == 17 ]]; then [[ ! -L /usr/bin/pg_dumpplus ]]; fi
+if [[ "$MAJOR" == 18 ]]; then [[ ! -L /usr/bin/pg_dumpplus ]]; fi
 echo "PASS install, run and remove; no compiler required"

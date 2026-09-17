@@ -46,8 +46,8 @@ sisteminize uygun Linux **x86_64** paketini indirin.
 | Ubuntu 24.04 | `1u2404_amd64.deb` |
 | Debian 12 | `1d12_amd64.deb` |
 
-PostgreSQL 13 (legacy) ve 17 (maintained) için paketler sunulur. Bu sunucularda aynı ana sürümü,
-14–16 sunucularında PostgreSQL 17 paketini seçin. Sunucunuzdan daha eski ana
+PostgreSQL 13 (legacy), 17 ve 18 (maintained) için paketler sunulur. Sunucunuzla
+aynı ana sürümü, 14–16 sunucularında PostgreSQL 17 paketini seçin. Sunucunuzdan daha eski ana
 sürüme sahip bir istemci kullanmayın.
 
 Örneğin Ubuntu 24.04 üzerinde PostgreSQL 17 paketini kurmak için:
@@ -64,14 +64,14 @@ yöneticisi kurar.
 
 | Komut | İşlev |
 | --- | --- |
-| `pg_dumpplus-17` / `pg_dumpplus-13` | Belirli istemci sürümünü çalıştırır |
-| `pg_dumpplus` | PostgreSQL 17 paketinin sağladığı varsayılan komut |
-| `pg_restoreplus-17` / `pg_restoreplus-13` | Aynı sürümün geri yükleme aracı |
+| `pg_dumpplus-18` / `pg_dumpplus-17` / `pg_dumpplus-13` | Belirli istemci sürümünü çalıştırır |
+| `pg_dumpplus` | PostgreSQL 18 paketinin sağladığı varsayılan komut |
+| `pg_restoreplus-18` / `pg_restoreplus-17` / `pg_restoreplus-13` | Aynı sürümün geri yükleme aracı |
 
-İki ana sürüm birlikte kurulabilir. Dosyalar `/opt/pgdumpplus/<major>/` altında,
+Desteklenen tüm ana sürümler birlikte kurulabilir. Dosyalar `/opt/pgdumpplus/<major>/` altında,
 komut bağlantıları `/usr/bin/` içinde bulunur. Sistemdeki `pg_dump` ve
-`pg_restore` komutları değişmez. PG17 kaldırılınca sürümsüz komut da kaldırılır;
-PG13 kuruluysa `pg_dumpplus-13` kullanılmaya devam eder.
+`pg_restore` komutları değişmez. PG18 kaldırılınca sürümsüz komut da kaldırılır;
+diğer kurulu sürümlü istemciler kullanılmaya devam eder.
 
 Tarball arşivleri aynı `opt/` ve `usr/` yapısını kullanır. Özel bir dizine açıp
 `<dizin>/usr/bin/pg_dumpplus-17` komutuyla da çalıştırabilirsiniz. İşletim

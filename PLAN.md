@@ -22,7 +22,7 @@ Latest published release at inspection: v1.2.0. New presets are on main after
 that tag, not in a newer stable release. Main CI for f3285c3 succeeded:
 https://github.com/senhakan/pgdumpplus/actions/runs/35253870996
 
-Current verified build matrix: PostgreSQL 13.18/17.8, Linux x86_64, EL8,
+Current verified build matrix: PostgreSQL 13.23/17.11/18.6, Linux x86_64, EL8,
 Ubuntu 22.04/24.04, Debian 12. Patcher atomicity/idempotence, integration and
 native install/upgrade/removal checks exist. Invalid mask columns still warn
 and continue; built-in text masks can be incompatible with destination types.

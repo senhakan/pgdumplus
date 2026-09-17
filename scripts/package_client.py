@@ -148,7 +148,7 @@ def main():
     commands = root / "usr/bin"
     commands.mkdir(parents=True)
     aliases = {"pg_dumpplus-" + major: "pg_dumpplus", "pg_restoreplus-" + major: "pg_restore"}
-    if major == "17":
+    if major == "18":
         aliases["pg_dumpplus"] = "pg_dumpplus"
     for name, target in aliases.items():
         (commands / name).symlink_to("../../opt/pgdumpplus/" + major + "/bin/" + target)

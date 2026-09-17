@@ -11,7 +11,7 @@ on:
       pg_versions:
         description: JSON array of PostgreSQL versions to verify
         type: string
-        default: '["13.18", "17.8"]'
+        default: '["13.23", "17.11", "18.6"]'
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pg_version: ${{ fromJSON(inputs.pg_versions || '["13.18", "17.8"]') }}
+        pg_version: ${{ fromJSON(inputs.pg_versions || '["13.23", "17.11", "18.6"]') }}
     container:
       image: ubuntu:24.04
     services:

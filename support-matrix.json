@@ -6,8 +6,9 @@
     "next": "v2.0.0-rc.1"
   },
   "postgresql": [
-    {"major": 13, "status": "legacy", "source_series": "13.x", "tested_minor": "13.18", "source_sha256": "c26273e47cd76024531562114e3acee0d40f250f28b9fe03926ef00802cb9994"},
-    {"major": 17, "status": "maintained", "source_series": "17.x", "tested_minor": "17.8", "source_sha256": "78b39721e70bb3324e9c9a2dfd321d204be19894830fe4bac5b1f2de73fae6ab", "default_command": true}
+    {"major": 13, "status": "legacy", "source_series": "13.x", "tested_minor": "13.23", "source_sha256": "3fa89e67db790ecdb5fd3709c525c1b114662b72090de7a1768094dc9ebb5639"},
+    {"major": 17, "status": "maintained", "source_series": "17.x", "tested_minor": "17.11", "source_sha256": "8b222af249d957ecec23608fe848d2dce03246121ac9b67bafb081226ea3c535"},
+    {"major": 18, "status": "maintained", "source_series": "18.x", "tested_minor": "18.6", "source_sha256": "ff9b1187e3ab120282b9f3e09a5efba2425838b3a843150c5cb2f019f47ac400", "default_command": true}
   ],
   "packages": {
     "architecture": ["x86_64"],
