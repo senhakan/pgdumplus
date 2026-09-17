@@ -316,6 +316,7 @@ static void
 validate_all_mask_entries(TableInfo *tblinfo, int numTables)
 {
 	DumpMaskEntry *me;
+	DumpMaskEntry *other;
 	int			i;
 
 	for (me = dump_mask_entries; me; me = me->next)
@@ -363,7 +364,7 @@ validate_all_mask_entries(TableInfo *tblinfo, int numTables)
 	}
 
 	for (me = dump_mask_entries; me; me = me->next)
-		for (DumpMaskEntry *other = me->next; other; other = other->next)
+		for (other = me->next; other; other = other->next)
 			if (me->relid == other->relid && strcmp(me->colname, other->colname) == 0)
 				@@FM@@("pg_dumpplus: duplicate --mask rule for column \"%s\"",
 					  me->colname);
