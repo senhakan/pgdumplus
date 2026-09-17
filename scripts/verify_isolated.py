@@ -161,6 +161,11 @@ class Suite:
         def normalize(path):
             return re.sub(r"^\\(?:un)?restrict .*$", "", path.read_text(), flags=re.M)
         self.equal(normalize(plus), normalize(normal))
+        # Keep the schema-only path aligned with the matching vanilla client;
+        # this is an upstream-regression check, not just a data round trip.
+        normal_schema, _ = self.dump(["--schema-only"], fmt="p", binary=self.args.vanilla)
+        plus_schema, _ = self.dump(["--schema-only"], fmt="p")
+        self.equal(normalize(plus_schema), normalize(normal_schema))
         self.restore(plus, "p")
         self.equal(self.sql(self.target, "SELECT count(*) FROM orders"), "1000")
 
@@ -239,25 +244,28 @@ class Suite:
 
     def snapshot_consistency(self):
         """A concurrent committed update must not produce mixed dump values."""
-        def writer():
-            self.sql(self.source, "UPDATE snapshot_probe SET state = 'after'")
+        for fmt in ("p", "c", "d"):
+            self.sql(self.source, "UPDATE snapshot_probe SET state = 'before'")
 
-        timer = threading.Timer(0.25, writer)
-        timer.start()
-        try:
-            path, result = self.dump([
-                "--where=public.snapshot_probe:id > 0 AND public.pgdp_pause_true()",
-            ], fmt="p")
-            if result.returncode:
-                raise RuntimeError(result.stderr)
-        finally:
-            timer.join(timeout=30)
-            if timer.is_alive():
-                raise RuntimeError("snapshot writer did not finish")
-        self.restore(path, "p")
-        self.equal(self.sql(self.target,
-                            "SELECT count(*), count(DISTINCT state) FROM snapshot_probe"),
-                   "20000|1")
+            def writer():
+                self.sql(self.source, "UPDATE snapshot_probe SET state = 'after'")
+
+            timer = threading.Timer(0.25, writer)
+            timer.start()
+            try:
+                path, result = self.dump([
+                    "--where=public.snapshot_probe:id > 0 AND public.pgdp_pause_true()",
+                ], fmt=fmt)
+                if result.returncode:
+                    raise RuntimeError(result.stderr)
+            finally:
+                timer.join(timeout=30)
+                if timer.is_alive():
+                    raise RuntimeError("snapshot writer did not finish")
+            self.restore(path, fmt)
+            self.equal(self.sql(self.target,
+                                "SELECT count(*), count(DISTINCT state) FROM snapshot_probe"),
+                       "20000|1")
 
     def checks(self):
         self.case("unfiltered dump matches upstream (random guards normalized)", self.unfiltered)
