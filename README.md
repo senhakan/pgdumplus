@@ -8,6 +8,8 @@ and safer data exports.**
 
 [Download](https://github.com/senhakan/pgdumpplus/releases/latest) · [Türkçe](docs/pgdumplus-tr.md) · [Report an issue](https://github.com/senhakan/pgdumpplus/issues)
 
+See [CHANGELOG.md](CHANGELOG.md) for release history and migration notes.
+
 `pg_dumpplus` extends PostgreSQL's `pg_dump` with **row-level filtering** and
 **column-level masking**. Export recent records, select a tenant's data, or
 anonymize selected fields in one command—with familiar dump formats and standard
