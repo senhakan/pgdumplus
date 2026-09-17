@@ -266,7 +266,7 @@ class Suite:
         ], "SELECT full_name, birth_year FROM customers WHERE id=2", "CUSTOMER 2|2000"))
         self.case("custom mask on text domain", lambda: self.roundtrip([
             "--mask=public.domain_examples:label:upper(label)::public.masked_label",
-        ], "SELECT label FROM domain_examples WHERE id=1", "ÜRN  1"))
+        ], "SELECT label FROM domain_examples WHERE id=1", "ÜRÜN  1"))
         self.case("missing mask column fails before export", self.invalid_mask)
         self.case("mask on excluded table fails before export", self.invalid_mask_selection)
         self.case("duplicate mask fails before export", self.duplicate_mask)
