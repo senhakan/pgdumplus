@@ -147,6 +147,10 @@ kısa değerlerin tüm karakterlerini maskeler. `tc`, geriye dönük uyumluluk i
 başarısız kılar. Hata sonrasında oluşmuş kısmi çıktıyı kullanmayın. Maskeleme
 yalnızca belirttiğiniz kolonları etkiler; veritabanını otomatik olarak anonimleştirmez.
 
+Hazır kalıplar karakter tabanlı dönüşümlerdir; e-posta, IBAN, kart veya başka
+bir iş formatının geçerliliğini denetlemez. Alt sistem kısıtlarınızı kendi
+verilerinizle ayrıca test edin.
+
 ## Geri yükleme
 
 Custom veya dizin arşivini mevcut, boş bir veritabanına yükleyin:

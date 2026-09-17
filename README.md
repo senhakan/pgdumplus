@@ -176,6 +176,10 @@ excluded, duplicate, or type-incompatible mask fails the command. Discard any
 partial output after a failure. Masking only affects the specified columns; it
 does not automatically anonymize the database.
 
+Presets are character-based transformations; they do not validate email, IBAN,
+card or other business formats. Test resulting values against your own
+constraints before relying on them downstream.
+
 ## Restore
 
 Restore a custom or directory archive into an existing empty database:
