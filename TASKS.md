@@ -20,7 +20,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | A1 | DONE | — | Strict masks and regression coverage (A1); local PG17.5 and CI PG13/17 checks pass |
 | A2 | IN_PROGRESS | A1 | Catalog-only dry-run and JSON schema (A2) |
 | A3 | IN_PROGRESS | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
-| B1 | READY | — | Version manifest, supported bases, package identity/order (B1) |
+| B1 | IN_PROGRESS | — | Version manifest, supported bases, package identity/order (B1) |
 | B2 | IN_PROGRESS | — | Source hashes, CI permissions, SBOM/provenance (B2) |
 | B3 | BLOCKED | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
 | C1 | BLOCKED | A2 | Compiled profile reader and tested examples (C1) |
