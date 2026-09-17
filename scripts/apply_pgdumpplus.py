@@ -265,8 +265,7 @@ fmtMaskedColumnList(const TableInfo *ti, PQExpBuffer buffer)
 
 MASK_VALIDATE_C = r"""
 	/*
-	 * pg_dumpplus: bu tabloya iliskin --mask kayitlarini katalogda dogrula;
-	 * gecerizse skip + uyari.
+	 * pg_dumpplus: bu tabloya iliskin --mask kayitlarini katalogda dogrula.
 	 */
 	if (dump_mask_entries != NULL)
 	{
@@ -286,33 +285,90 @@ MASK_VALIDATE_C = r"""
 				found = true;
 				if (tbinfo->attisdropped[k])
 				{
-					me->skip = true;
-					pg_log_warning("pg_dumpplus: --mask column \"%s\" of \"%s\" is dropped; mask ignored",
-								   me->colname, tbinfo->dobj.name);
+					@@FM@@("pg_dumpplus: --mask column \"%s\" of \"%s\" is dropped",
+						  me->colname, tbinfo->dobj.name);
 				}
 				else if (tbinfo->attgenerated[k])
 				{
-					me->skip = true;
-					pg_log_warning("pg_dumpplus: --mask column \"%s\" of \"%s\" is generated; mask ignored",
-								   me->colname, tbinfo->dobj.name);
+					@@FM@@("pg_dumpplus: --mask column \"%s\" of \"%s\" is generated",
+						  me->colname, tbinfo->dobj.name);
 				}
 				else if (me->text_ret &&
 						 strcmp(tbinfo->atttypnames[k], "text") != 0 &&
 						 strcmp(tbinfo->atttypnames[k], "bpchar") != 0 &&
 						 strncmp(tbinfo->atttypnames[k], "character varying", 17) != 0)
-					pg_log_warning("pg_dumpplus: --mask preset on \"%s\".\"%s\" (%s column) yields text; restore into a non-text column may fail",
-								   tbinfo->dobj.name, me->colname,
-								   tbinfo->atttypnames[k]);
+					@@FM@@("pg_dumpplus: --mask preset on \"%s\".\"%s\" (%s column) yields text; use a text-compatible column",
+						  tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k]);
 				break;
 			}
 			if (!found)
 			{
-				me->skip = true;
-				pg_log_warning("pg_dumpplus: --mask column \"%s\" not found in table \"%s\"; mask ignored",
-							   me->colname, tbinfo->dobj.name);
+				@@FM@@("pg_dumpplus: --mask column \"%s\" not found in table \"%s\"",
+					  me->colname, tbinfo->dobj.name);
 			}
 		}
 	}
+"""
+
+MASK_VALIDATE_ALL_C = r"""
+/* pg_dumpplus: validate every requested mask before table-data planning. */
+static void
+validate_all_mask_entries(TableInfo *tblinfo, int numTables)
+{
+	DumpMaskEntry *me;
+	int			i;
+
+	for (me = dump_mask_entries; me; me = me->next)
+	{
+		bool		found_table = false;
+		bool		found_column = false;
+
+		for (i = 0; i < numTables; i++)
+		{
+			TableInfo  *tbinfo = &tblinfo[i];
+			int			k;
+
+			if (tbinfo->dobj.catId.oid != me->relid)
+				continue;
+			found_table = true;
+			if (!(tbinfo->dobj.dump & DUMP_COMPONENT_DATA))
+				@@FM@@("pg_dumpplus: --mask table \"%s\" is not selected for data export",
+					  tbinfo->dobj.name);
+			for (k = 0; k < tbinfo->numatts; k++)
+			{
+				if (strcmp(tbinfo->attnames[k], me->colname) != 0)
+					continue;
+				found_column = true;
+				if (tbinfo->attisdropped[k])
+					@@FM@@("pg_dumpplus: --mask column \"%s\" of \"%s\" is dropped",
+						  me->colname, tbinfo->dobj.name);
+				if (tbinfo->attgenerated[k])
+					@@FM@@("pg_dumpplus: --mask column \"%s\" of \"%s\" is generated",
+						  me->colname, tbinfo->dobj.name);
+				if (me->text_ret &&
+					strcmp(tbinfo->atttypnames[k], "text") != 0 &&
+					strcmp(tbinfo->atttypnames[k], "bpchar") != 0 &&
+					strncmp(tbinfo->atttypnames[k], "character varying", 17) != 0)
+					@@FM@@("pg_dumpplus: --mask preset on \"%s\".\"%s\" (%s column) yields text; use a text-compatible column",
+						  tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k]);
+				break;
+			}
+			break;
+		}
+		if (!found_table)
+			@@FM@@("pg_dumpplus: --mask target table was not found");
+		if (!found_column)
+			@@FM@@("pg_dumpplus: --mask column \"%s\" was not found in the target table",
+				  me->colname);
+	}
+
+	for (me = dump_mask_entries; me; me = me->next)
+		for (DumpMaskEntry *other = me->next; other; other = other->next)
+			if (me->relid == other->relid && strcmp(me->colname, other->colname) == 0)
+				@@FM@@("pg_dumpplus: duplicate --mask rule for column \"%s\"",
+					  me->colname);
+}
+
 """
 
 def main(root):
@@ -588,6 +644,11 @@ find_unquoted_char(const char *s, char sep)
                         "\t\tif (tabledata_where_oids.head == NULL)\n"
                         f"\t\t\t{no_match_err}\n"
                         "\t}\n\n") + t[last:]
+        t = rep_once(t, "\ttblinfo = getSchemaData(fout, &numTables);",
+                     "\ttblinfo = getSchemaData(fout, &numTables);\n"
+                     "\tif (dump_mask_entries != NULL)\n"
+                     "\t\tvalidate_all_mask_entries(tblinfo, numTables);",
+                     "dd-mask-validate-all")
         # 4j: makeTableDataInfo
         mmt = re.search(r"static void\nmakeTableDataInfo\(DumpOptions \*dopt, TableInfo \*tbinfo\)\n\{\n\tTableDataInfo \*tdinfo;\n", t)
         if not mmt: raise Fail("anchor [dd-mtdi-head] yok")
@@ -632,7 +693,8 @@ find_unquoted_char(const char *s, char sep)
             "static char *mask_expr_for(Oid relid, const char *colname);\n"
             "static bool table_has_masks(TableInfo *tbinfo);\n"
             "static const char *fmtMaskedColumnList(const TableInfo *ti,\n"
-            "\t\t\t\t\t\t\t\t\t\t\tPQExpBuffer buffer);",
+			"\t\t\t\t\t\t\t\t\t\t\tPQExpBuffer buffer);\n"
+			"static void validate_all_mask_entries(TableInfo *tblinfo, int numTables);",
             "dm-statics")
         # 5b: long_options 27 (26=where'den sonra)
         t = rep_once(t, '{"where", required_argument, NULL, 26},\t/* pg_dumpplus */',
@@ -671,7 +733,7 @@ find_unquoted_char(const char *s, char sep)
         mfc = re.search(r"static const char \*\nfmtCopyColumnList\(const TableInfo \*ti, PQExpBuffer buffer\)\n\{\n", t)
         if not mfc: raise Fail("anchor [dm-fmt] yok")
         pos = mfc.start()
-        t = t[:pos] + MASK_HELPERS_C + MASK_FMT_C + t[pos:]
+        t = t[:pos] + MASK_HELPERS_C + MASK_VALIDATE_ALL_C.replace("@@FM@@", fm_err) + MASK_FMT_C + t[pos:]
         # 6b: COPY (SELECT) provizyonu -> maskeli liste; restore header'a dokunulmaz
         t = rep_once(t,
             "column_list = fmtCopyColumnList(tbinfo, clistBuf);",
@@ -695,7 +757,7 @@ find_unquoted_char(const char *s, char sep)
             "dm-inserts")
         # 6e: makeTableDataInfo'da dogrulama — filtercond blogunun sonrasina
         anchor6e = "\t\t\ttdinfo->filtercond = psprintf(\"WHERE (%s)\", filter_clause);\n\t}"
-        t = rep_once(t, anchor6e, anchor6e + "\n" + MASK_VALIDATE_C, "dm-validate")
+        t = rep_once(t, anchor6e, anchor6e + "\n" + MASK_VALIDATE_C.replace("@@FM@@", fm_err), "dm-validate")
         wr(d, t); changed.append(d)
 
     # ---------- 7) Makefile: pg_dumpplus hedefi ----------

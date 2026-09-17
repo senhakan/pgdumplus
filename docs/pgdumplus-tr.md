@@ -132,10 +132,10 @@ Hazır kalıplar NULL ve boş değerleri korur. `identity`, dört karakter veya 
 kısa değerlerin tüm karakterlerini maskeler. `tc`, geriye dönük uyumluluk için
 `identity` takma adı olarak desteklenir.
 
-**Dışa aktarılan veriyi paylaşmadan önce maskeleme uyarılarını kontrol edin.**
-Olmayan, silinmiş veya üretilen bir kolonun maskesi uyarıyla atlanır; dump hata
-vererek durmaz. Diğer veriler maskelenmeden aktarılabilir. Maskeleme yalnızca
-belirttiğiniz kolonları etkiler; veritabanını otomatik olarak anonimleştirmez.
+**Maskeleme kuralları veri aktarımından önce doğrulanır.** Olmayan, silinmiş,
+üretilen, dışarıda bırakılmış, yinelenen veya tip ile uyumsuz bir maske komutu
+başarısız kılar. Hata sonrasında oluşmuş kısmi çıktıyı kullanmayın. Maskeleme
+yalnızca belirttiğiniz kolonları etkiler; veritabanını otomatik olarak anonimleştirmez.
 
 ## Geri yükleme
 

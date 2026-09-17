@@ -146,10 +146,10 @@ Presets preserve NULL values and empty strings. `identity` fully masks values of
 four characters or fewer. `tc` remains a backwards-compatible alias for
 `identity`.
 
-**Check mask warnings before sharing an export.** A missing, dropped, or
-generated column causes its mask to be skipped with a warning, not a failed
-dump. Other data can still be exported unmasked. Masking only affects the
-specified columns; it does not automatically anonymize the database.
+**Mask rules are validated before data export.** A missing, dropped, generated,
+excluded, duplicate, or type-incompatible mask fails the command. Discard any
+partial output after a failure. Masking only affects the specified columns; it
+does not automatically anonymize the database.
 
 ## Restore
 

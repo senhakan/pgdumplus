@@ -1,73 +1,73 @@
-# Work list
+# Execution tracker
 
-Updated: 2026-09-17. Status reflects observed results, not planned capability.
+Updated: 2026-09-17. Specification: [PLAN.md](PLAN.md).
+Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence required).
 
-## P0 — Baseline and correctness
+## Verified baseline
 
-- [x] Review patcher, packaging, verification scripts and workflows.
-- [x] Rewrite English and Turkish user documentation.
-- [x] Inventory the designated test host without modifying existing databases.
-- [x] Add and run isolated integration checks on the installed PG17 client.
-- [x] Record unfiltered comparison against the matching upstream client.
-- [x] Check custom, plain SQL, INSERT and parallel directory restore paths on PG13/17.
-- [x] Verify quoted column names, NULLs and short mask inputs on PG13/17.
-- [x] Fix the four observed data-handling defects; each candidate passes 28 checks.
-- [ ] Define strict failure behavior for masks that cannot be applied.
-- [ ] Make the patcher safe on anchor failure and older patched source trees.
-- [x] Verify PG13 with an isolated PG13.18 server: 28 checks passed.
+- Canonical repo senhakan/pgdumpplus; command pg_dumpplus.
+- Main baseline f3285c3; latest published release v1.2.0 at inspection.
+- [CI 35253870996](https://github.com/senhakan/pgdumpplus/actions/runs/35253870996): success.
+- Patcher safety, compiled packages, PG13/17 roundtrips and package smoke tests exist.
+- New presets are on main after v1.2.0; not yet part of a newer stable release.
+- Strict masks, dry-run, profiles and deterministic pseudonyms are not implemented.
+- This tracker supersedes stale defect/completion claims in the previous list.
 
-## P1 — Standalone packages
+## Work queue
 
-- [x] Share client-only build/staging logic between RPM and DEB.
-- [x] Remove host installation and broad deletion from packaging scripts.
-- [x] Define PATH commands and coexistence of multiple major versions.
-- [x] Generate runtime dependencies and include the license.
-- [x] Unify tarball paths and source-only patch generation.
-- [x] Eliminate cross-platform patch asset collisions.
-- [x] Validate isolated install, upgrade and removal of candidate RPM/DEB.
-- [x] Confirm PostgreSQL service and existing client binaries are unchanged.
+| ID | Status | Dependencies | Deliverable (PLAN section) |
+| --- | --- | --- | --- |
+| A1 | IN_PROGRESS | — | Strict masks and regression coverage (A1); local PG17.5 candidate passes 40 checks, CI pending |
+| A2 | BLOCKED | A1 | Catalog-only dry-run and JSON schema (A2) |
+| A3 | BLOCKED | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
+| B1 | READY | — | Version manifest, supported bases, package identity/order (B1) |
+| B2 | READY | — | Source hashes, CI permissions, SBOM/provenance (B2) |
+| B3 | BLOCKED | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
+| C1 | BLOCKED | A2 | Compiled profile reader and tested examples (C1) |
+| C2-design | BLOCKED | A3 | Key/type/execution design and review (C2-design) |
+| C2 | BLOCKED | C1, C2-design | Typed deterministic pseudonyms (C2) |
+| D1-linux | BLOCKED | B1, B2 | Native Linux ARM64 packages (D1) |
+| D1-macos | BLOCKED | D1-linux | macOS packages and Homebrew tap (D1) |
+| D2-local | BLOCKED | B1, B2 | Signed APT/RPM metadata and local client tests (D2) |
+| D2-public | BLOCKED | D2-local, B3, hosting/key decision | Hosted channels and upgrades (D2) |
+| D3a | READY | — | Accurate README/TR, matrix, changelog, contribution/security docs (D3) |
+| D3b | BLOCKED | B3 | Release-binary demo/tutorials and launch drafts (D3) |
+| CLEAN1 | READY | — | Audit and retire unsafe/redundant legacy entry points |
 
-## P1 — Automated verification
+CLEAN1: inspect demo_setup.sql, mask_verify_ci.sh and verify_pgdumpplus.sh.
+Migrate unique useful coverage to verify_isolated.py before removing scripts;
+update references. Do not execute destructive legacy scripts on a live server.
 
-- [x] Replace CI hard-coded test database names and inconsistent fixtures with
-  the isolated verification suite. Legacy standalone scripts remain to retire.
-- [ ] Fix legacy demo SQL: connected-database deletion and oversized ID values.
-- [x] Configure the new suite on code changes and pull requests for both supported
-  majors. Remote GitHub execution remains to be observed after publishing changes.
-- [x] Make successful verification a prerequisite for release publication in CI.
-- [ ] Validate release archives and checksum coverage.
+## Release boundaries
 
-## P2 — Compatibility and publication
+1. v2.0: A1–A3, B1–B3, D3a. Strict masking is a breaking behavior change.
+2. Later minor releases: C1, then C2 after architecture and runtime evidence.
+3. D1/D2 each ship only after their own platform/channel gates pass.
+4. D3b demonstrates an actual release, not unreleased functionality.
 
-- [ ] Cover partitions, schema selection, repeated patterns and concurrent writes.
-- [ ] Run upstream pg_dump regression checks for candidate builds.
-- [ ] Review supported PostgreSQL versions and dependency security before release.
-- [ ] Synchronize documentation with the final package layout and mask semantics.
-- [ ] Prepare release notes and publish only verified artifacts.
+These are target milestones, not published versions or calendar promises.
 
-## Known issues from source review
+## Evidence ledger
 
-- Baseline execution found an older installed PG17 package without `--mask`;
-  candidate source builds must be checked independently of installed packages.
-- Invalid mask columns currently warn and continue; data can remain unmasked.
-- The current CI fixture uses `adres`, while some checks reference `address`.
-- Some mask expectations do not match the generated data or SQL projection.
-- DEB patch generation includes the compiled tree, and patch asset names collide
-  when artifacts from different distributions are merged.
-- Builds currently install more than a focused dump client needs.
-- A legacy bundled psql could not load its readline library on the test OS;
-  native runtime dependencies need explicit package verification.
-- The current public release still contains the older package layout; the new
-  client-only artifacts need a new release after CI passes.
+| Task | Commit/run | Observed result | Limits |
+| --- | --- | --- | --- |
+| Baseline | f3285c3 / 35253870996 | CI success | Existing matrix only |
+| Planning | Working tree, 2026-09-17 | Plan and agent handoff created | No implementation or release performed |
+| A1 local | Working tree, 2026-09-17 | PG17.5 candidate build + isolated suite: 40 passed | CI and PG13 candidate still required |
 
-## Latest verification
+Add exact checked commit, CI URL or command and actual outcome for each task.
+Never infer a test count or mark an ongoing run passed. Keep private evidence
+outside Git; put only sanitized conclusions here.
 
-2026-09-17: clean candidate builds on PostgreSQL 17.8 and 13.18 each pass
-28 dump/restore checks. Four reproduced bugs were corrected: masked INSERT
-column names, quoted mask identifiers, NULL handling in `all`, and short-value
-handling in `tc`. No installed client was replaced. Candidate packaging,
-upgrade/removal validation and execution of the revised GitHub workflows are
-still outstanding. Patcher safety and focused client package smoke tests are now
-implemented. RPM and Ubuntu 24.04 DEB install/upgrade/run/remove smoke tests
-passed without compiler tools; release archive/checksum validation and remote CI
-execution remain before publication.
+## Resume instructions
+
+First task: A1. Read MASK_VALIDATE_C and its injection points in
+scripts/apply_pgdumpplus.py. Read skipped_mask and error tests in
+scripts/verify_isolated.py. Reproduce warning/continue behavior with a synthetic
+disposable fixture. Trace validation timing relative to table-data output,
+then implement strict resolution and format/parallel regression checks.
+
+A1 has no known external blocker. D2-public needs hosting/key ownership.
+C2 needs a reviewed architecture before key-handling implementation.
+At interruption record active task, changed paths, last test/result, exact next
+action and unresolved blocker. PLAN.md contains the required behavior contract.

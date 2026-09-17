@@ -149,12 +149,25 @@ class Suite:
         self.restore(plus, "p")
         self.equal(self.sql(self.target, "SELECT count(*) FROM orders"), "1000")
 
-    def skipped_mask(self):
-        path, result = self.dump(["--mask=public.customers:missing_column:all"])
-        if "not found in table" not in result.stderr:
-            raise AssertionError("missing-column warning absent")
-        self.restore(path)
-        self.equal(self.sql(self.target, "SELECT ssn FROM customers WHERE id=1"), "12345678901")
+    def invalid_mask(self):
+        _, result = self.dump(["--mask=public.customers:missing_column:all"], check=False)
+        if result.returncode == 0 or "not found" not in result.stderr:
+            raise AssertionError("missing-column mask did not fail")
+
+    def invalid_mask_selection(self):
+        _, result = self.dump([
+            "-t", "public.orders", "--mask=public.customers:ssn:all",
+        ], check=False)
+        if result.returncode == 0 or "not selected" not in result.stderr:
+            raise AssertionError("mask on excluded table did not fail")
+
+    def duplicate_mask(self):
+        _, result = self.dump([
+            "--mask=public.customers:ssn:all",
+            "--mask=public.customers:ssn:identity",
+        ], check=False)
+        if result.returncode == 0 or "duplicate" not in result.stderr:
+            raise AssertionError("duplicate mask did not fail")
 
     def checks(self):
         self.case("unfiltered dump matches upstream (random guards normalized)", self.unfiltered)
@@ -188,7 +201,13 @@ class Suite:
             "--mask=public.customers:full_name:upper(full_name)",
             "--mask=public.customers:birth_year:2000",
         ], "SELECT full_name, birth_year FROM customers WHERE id=2", "CUSTOMER 2|2000"))
-        self.case("missing mask column warns and retains raw data (current behavior)", self.skipped_mask)
+        self.case("missing mask column fails before export", self.invalid_mask)
+        self.case("mask on excluded table fails before export", self.invalid_mask_selection)
+        self.case("duplicate mask fails before export", self.duplicate_mask)
+        self.case("preset on non-text column fails before export", lambda: self.error(
+            "--mask=public.customers:birth_year:all", "yields text"))
+        self.case("mask on generated column fails before export", lambda: self.error(
+            "--mask=public.customers:doubled:all", "generated"))
         for name, option, fragment in (
             ("where separator", "--where=public.orders", "missing"),
             ("where table", "--where=public.no_such_table:id=1", "no matching"),
