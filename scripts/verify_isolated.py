@@ -174,6 +174,14 @@ class Suite:
         if result.returncode == 0 or "duplicate" not in result.stderr:
             raise AssertionError("duplicate mask did not fail")
 
+    def partition_mask_selection_error(self):
+        _, result = self.dump([
+            "-t", "public.partitioned_events",
+            "--mask=public.partitioned_events_1:secret:all",
+        ], check=False)
+        if result.returncode == 0 or "not selected" not in result.stderr:
+            raise AssertionError("partition child mask did not fail explicitly")
+
     def dry_run(self, plan_format="text"):
         result = self.run([
             self.args.binary, "-d", self.source, "--no-owner", "--no-privileges",
@@ -246,10 +254,7 @@ class Suite:
         self.case("table selection and filter", lambda: self.roundtrip([
             "-t", "public.customers", "--where=public.customers:id <= 3",
         ], "SELECT count(*) FROM customers", "3"))
-        self.case("partition child masking", lambda: self.roundtrip([
-            "-t", "public.partitioned_events",
-            "--mask=public.partitioned_events_1:secret:all",
-        ], "SELECT secret FROM partitioned_events_1 ORDER BY id", "*****|****|*****"))
+        self.case("partition child mask selection is explicit", self.partition_mask_selection_error)
         self.case("custom text and integer masks", lambda: self.roundtrip([
             "--mask=public.customers:full_name:upper(full_name)",
             "--mask=public.customers:birth_year:2000",
