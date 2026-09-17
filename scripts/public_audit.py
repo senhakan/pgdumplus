@@ -5,10 +5,10 @@ import subprocess
 import sys
 
 PATTERNS = (
-    re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
+    re.compile(r"(?:github_pat_|gh[pousr]_|ghs_)[A-Za-z0-9_]{20,}"),
     re.compile(r"(?:postgres(?:ql)?|mysql|redis)://[^\s:@]+:[^\s@]+@", re.I),
     re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----"),
-    re.compile(r"\b(?:10\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|192\.168\.(?:[0-9]{1,3}\.)[0-9]{1,3})\b"),
+    re.compile(r"\b(?:10\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|192\.168\.(?:[0-9]{1,3}\.)[0-9]{1,3}|172\.(?:1[6-9]|2[0-9]|3[0-1])\.(?:[0-9]{1,3}\.)[0-9]{1,3})\b"),
 )
 
 
