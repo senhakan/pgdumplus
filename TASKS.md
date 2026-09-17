@@ -80,6 +80,7 @@ These are target milestones, not published versions or calendar promises.
 | B1 cross-major guard | [35286844662](https://github.com/senhakan/pgdumpplus/actions/runs/35286844662) | Commit c4891d5: verify workflow connects the PG17 client to an isolated PG18.6 service and confirms PostgreSQL’s real `server version mismatch` refusal before export; full matrix passed | The guard is supplied by the matching upstream client path; B1 still awaits only final release-gate review |
 | Public audit | [35287648751](https://github.com/senhakan/pgdumpplus/actions/runs/35287648751) | Commit 1f36ee9: tracked-file audit rejects credential, private-key and private-network markers; local and CI checks passed | Pattern scan complements, but does not replace, GitHub secret scanning |
 | C1 profile examples | 02fcd2c / looped `python3 -m json.tool` | Added tenant-subset, support-extract and full-redaction design examples; all parse as valid JSON and are referenced from the public README | Examples remain design-only until the compiled profile reader is implemented; CI validation awaits push permission |
+| C1 validator hardening | 689c2e5 / local validator checks | CI now exercises rejection of duplicate keys and unknown fields in addition to validating all three examples | Remote CI is pending because this working tree cannot push with the available GitHub credential |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
