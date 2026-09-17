@@ -30,6 +30,7 @@ jobs:
         env:
           REQUESTED_VERSIONS: ${{ inputs.pg_versions }}
         run: |
+          python3 scripts/public_audit.py
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             V="$REQUESTED_VERSIONS"
           else
