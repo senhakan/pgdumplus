@@ -232,8 +232,8 @@ class Suite:
             "--mask=public.customers:uuid_value:uuid",
         ], "SELECT email, full_name, address, iban, card_number, uuid_value "
            "FROM customers WHERE id=1",
-           "u***@example.com|C*********|*********|DE89**************3000|************1111|"
-           "550e8400**********************0000"))
+           "u****@example.com|C*********|*********|DE89**************3000|************1111|"
+           "550e8400************************0000"))
         for preset in ("identity", "tc", "phone", "email", "name", "address", "iban", "card", "uuid"):
             self.case(preset + " preset preserves NULL", lambda preset=preset: self.roundtrip([
                 "--mask=public.mask_edges:value:" + preset,
