@@ -40,6 +40,12 @@ customer columns masked. Other tables and columns are exported normally.
 pg_dumpplus installs as a separate command alongside your existing PostgreSQL
 tools. It is an independent project based on PostgreSQL's `pg_dump`.
 
+In CI, an unfiltered `pg_dumpplus` export is restored and compared with a
+matching vanilla `pg_dump` export. The intentional difference begins only when
+`--where` or `--mask` rules are supplied: PostgreSQL object selection remains
+`pg_dump`-compatible, while row and column values are transformed during data
+export.
+
 ### Common use cases
 
 - Export only one tenant, customer, date range, or business partition.
