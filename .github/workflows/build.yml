@@ -25,6 +25,7 @@ jobs:
     outputs:
       versions: ${{ steps.pick.outputs.versions }}
     steps:
+      - uses: actions/checkout@v4
       - id: pick
         env:
           REQUESTED_VERSIONS: ${{ inputs.pg_versions }}
@@ -35,8 +36,9 @@ jobs:
             V="17.8 13.18"
           fi
           [[ -n "$V" ]] || { echo "No PostgreSQL versions requested" >&2; exit 1; }
+          majors=$(jq -r '[.postgresql[].major | tostring] | join("|")' support-matrix.json)
           for version in $V; do
-            [[ "$version" =~ ^(13|17)\.[0-9]+$ ]] || { echo "Unsupported version" >&2; exit 1; }
+            [[ "$version" =~ ^($majors)\.[0-9]+$ ]] || { echo "Unsupported version" >&2; exit 1; }
           done
           J=$(printf '%s' "$V" | tr ' ' '\n' | sed '/^$/d' | jq -R . | jq -s -c .)
           echo "versions=$J" >> "$GITHUB_OUTPUT"
