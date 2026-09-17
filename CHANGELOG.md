@@ -7,6 +7,11 @@
 - Added catalog-only `--dry-run` plans in text and JSON (`schema_version: 1`).
 - Added deterministic SPDX release SBOM generation and consolidated support
   metadata.
+- Current candidate builds target PostgreSQL 13.23 (legacy), 17.11 and 18.6;
+  package metadata separates the project version from the upstream PostgreSQL
+  version.
+- Release assets are checksummed and accompanied by GitHub provenance
+  attestations.
 
 Migration: review existing `--mask` rules before upgrading. Missing columns,
 generated or dropped columns, excluded tables, duplicate rules, and text
