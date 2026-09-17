@@ -678,8 +678,8 @@ find_unquoted_char(const char *s, char sep)
             connect_anchor +
             "\t/* pg_dumpplus: reject newer server majors explicitly. */\n"
             "\t{\n"
-            "\t\tconst char *server_version = PQparameterStatus(GetConnection(fout), \"server_version\");\n"
-            "\t\tint server_major = server_version ? atoi(server_version) : 0;\n"
+            "\t\tint server_version_num = PQserverVersion(GetConnection(fout));\n"
+            "\t\tint server_major = server_version_num >= 100000 ? server_version_num / 10000 : server_version_num / 100;\n"
             f"\t\tif (server_major > (PG_VERSION_NUM / 10000))\n\t\t\t{fm_err}(\"pg_dumpplus: server major %d is newer than this client major %d\", server_major, PG_VERSION_NUM / 10000);\n"
             "\t}\n",
             "dd-server-major")
