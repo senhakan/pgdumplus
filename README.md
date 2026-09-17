@@ -77,6 +77,8 @@ For example, install the PostgreSQL 17 package for Ubuntu 24.04:
 ```bash
 sudo apt install ./pgdumpplus-17_<version>-<revision>u2404_amd64.deb
 pg_dumpplus --version
+# Verify the project, upstream and source identity embedded in the binary
+pg_dumpplus --build-info
 ```
 
 For an RPM package, use `sudo dnf install ./<package.rpm>`. Packages contain
@@ -88,6 +90,9 @@ server installation is required. The package manager installs runtime libraries.
 | `pg_dumpplus-18` / `pg_dumpplus-17` / `pg_dumpplus-13` | Use a specific client major |
 | `pg_dumpplus` | Default command supplied by the PostgreSQL 18 package |
 | `pg_restoreplus-18` / `pg_restoreplus-17` / `pg_restoreplus-13` | Matching archive restore client |
+
+`--build-info` prints the pg_dumpplus project version, the upstream PostgreSQL
+version and the source commit used for that build.
 
 All supported majors can be installed together. Files live under
 `/opt/pgdumpplus/<major>/`, with command links in `/usr/bin/`. System `pg_dump`

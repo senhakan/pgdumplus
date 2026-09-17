@@ -55,6 +55,7 @@ sürüme sahip bir istemci kullanmayın.
 ```bash
 sudo apt install ./pgdumpplus-17_<version>-<revision>u2404_amd64.deb
 pg_dumpplus --version
+pg_dumpplus --build-info
 ```
 
 RPM paketleri için `sudo dnf install ./<paket.rpm>` kullanın. Paketler önceden
@@ -67,6 +68,9 @@ yöneticisi kurar.
 | `pg_dumpplus-18` / `pg_dumpplus-17` / `pg_dumpplus-13` | Belirli istemci sürümünü çalıştırır |
 | `pg_dumpplus` | PostgreSQL 18 paketinin sağladığı varsayılan komut |
 | `pg_restoreplus-18` / `pg_restoreplus-17` / `pg_restoreplus-13` | Aynı sürümün geri yükleme aracı |
+
+`--build-info`, pg_dumpplus proje sürümünü, upstream PostgreSQL sürümünü ve
+derlemede kullanılan kaynak commit'ini gösterir.
 
 Desteklenen tüm ana sürümler birlikte kurulabilir. Dosyalar `/opt/pgdumpplus/<major>/` altında,
 komut bağlantıları `/usr/bin/` içinde bulunur. Sistemdeki `pg_dump` ve
