@@ -204,7 +204,7 @@ Provide CI-tested synthetic tenant, support and full-redaction example profiles.
 
 ### C2-design and C2: Typed deterministic pseudonyms
 
-Write docs/design/pseudonymization.md before implementation. Specify threat model,
+Write `docs/design/pseudonymization.md` before implementation. Specify threat model,
 execution location, canonicalization, domains, key lifecycle, collision strategy,
 parallel behavior and supported target types. Use reviewed keyed primitives;
 plain unsalted hashes must not be advertised as privacy protection.
