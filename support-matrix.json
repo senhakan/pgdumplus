@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "project_version": "1.2.0",
+  "channels": {
+    "stable": "v1.2.0",
+    "next": "v2.0.0-rc.1"
+  },
+  "postgresql": [
+    {"major": 13, "status": "legacy", "source_series": "13.x"},
+    {"major": 17, "status": "maintained", "source_series": "17.x", "default_command": true}
+  ],
+  "packages": {
+    "architecture": ["x86_64"],
+    "rpm": ["el8"],
+    "deb": ["ubuntu2204", "ubuntu2404", "debian12"]
+  },
+  "client_policy": "Use a client built for the same PostgreSQL major as the server. Cross-major restore is supported by pg_restore where PostgreSQL permits it; verify the target separately."
+}

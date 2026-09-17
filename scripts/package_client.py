@@ -7,6 +7,7 @@ are never modified. Workspaces and logs are retained for inspection.
 """
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import platform
@@ -20,6 +21,13 @@ import tempfile
 from apply_pgdumpplus import PATCH_FILES
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+
+
+def supported_majors():
+    with open(ROOT / "support-matrix.json", encoding="utf-8") as stream:
+        data = json.load(stream)
+    return {str(item["major"]) for item in data["postgresql"]}
 
 
 def run(argv, cwd=None, env=None, log=None):
@@ -62,8 +70,9 @@ def main():
     parser.add_argument("--source-archive", type=Path, help="existing upstream source tarball")
     parser.add_argument("--revision", default="2", help="positive native package revision")
     args = parser.parse_args()
-    if not re.fullmatch(r"(13|17)\.[0-9]+", args.version):
-        parser.error("supported source versions are 13.x and 17.x")
+    majors = supported_majors()
+    if not re.fullmatch(r"(?:" + "|".join(sorted(majors)) + r")\.[0-9]+", args.version):
+        parser.error("source version is not listed in support-matrix.json")
     if not re.fullmatch(r"[1-9][0-9]*", args.revision):
         parser.error("revision must be a positive integer")
     major = args.version.split(".")[0]
