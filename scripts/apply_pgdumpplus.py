@@ -670,9 +670,12 @@ find_unquoted_char(const char *s, char sep)
         # Refuse a client older than the connected server major. A matching
         # major remains compatible; accidental downgrade paths fail early.
         fm_err = "fatal" if PG13 else "pg_fatal"
+        connect_anchor = ("\tConnectDatabase(fout, &dopt.cparams, false);\n"
+                          if "\tConnectDatabase(fout, &dopt.cparams, false);\n" in t
+                          else "\tConnectDatabaseAhx(fout, &dopt.cparams, false);\n")
         t = rep_once(t,
-            "\tConnectDatabase(fout, &dopt.cparams, false);\n",
-            "\tConnectDatabase(fout, &dopt.cparams, false);\n"
+            connect_anchor,
+            connect_anchor +
             "\t/* pg_dumpplus: reject newer server majors explicitly. */\n"
             "\t{\n"
             "\t\tconst char *server_version = PQparameterStatus(GetConnection(fout), \"server_version\");\n"
