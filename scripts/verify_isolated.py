@@ -28,8 +28,7 @@ CREATE TABLE customers (
     doubled integer GENERATED ALWAYS AS (id * 2) STORED
 );
 INSERT INTO customers (id, full_name, ssn, phone, email, address, iban,
-                       card_number, uuid_value, birth_year, native_uuid,
-                       domain_label)
+                       card_number, uuid_value, birth_year, native_uuid)
 SELECT g, 'Customer ' || g, '12345678901', '05551234567',
        'user' || g || '@example.com', 'Address ' || g,
        'DE89370400440532013000', '4111111111111111',
