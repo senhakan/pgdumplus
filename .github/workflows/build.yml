@@ -191,6 +191,17 @@ jobs:
           path: all-dist
           merge-multiple: true
 
+      - name: Validate release asset set
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t assets < <(find all-dist -maxdepth 1 -type f -printf '%f\n' | sort)
+          [[ ${#assets[@]} -gt 0 ]]
+          [[ ${#assets[@]} -eq $(printf '%s\n' "${assets[@]}" | sort -u | wc -l) ]]
+          while IFS= read -r path; do
+            [[ -f "$path" && ! -L "$path" ]]
+          done < <(find all-dist -maxdepth 1 -type f -print)
+
       - name: Generate SPDX SBOM
         run: |
           tmp_sbom=$(mktemp)
