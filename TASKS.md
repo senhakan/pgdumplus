@@ -22,7 +22,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | A2 | DONE | A1 | Catalog-only dry-run and JSON schema (A2) |
 | A3 | IN_PROGRESS | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | IN_PROGRESS | — | Version manifest, supported bases, package identity/order (B1) |
-| B2 | IN_PROGRESS | — | Source hashes, CI permissions, SBOM/provenance (B2) |
+| B2 | DONE | — | Source hashes, CI permissions, SBOM/provenance (B2) |
 | B3 | BLOCKED | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
 | C1 | BLOCKED | A2 | Compiled profile reader and tested examples (C1) |
 | C2-design | IN_PROGRESS | A3 | Key/type/execution design and review (C2-design) |
@@ -70,6 +70,7 @@ These are target milestones, not published versions or calendar promises.
 | Latest compatibility CI | [35272617138](https://github.com/senhakan/pgdumpplus/actions/runs/35272617138) | Commit 42b8543: PG13.23/17.11/18.6 builds, verify jobs, all DEB/RPM smoke jobs passed after PG18 fix | Release job skipped because no tag was created |
 | Latest docs CI | [35273077003](https://github.com/senhakan/pgdumpplus/actions/runs/35273077003) | Commit 54f26f8: current PG13.23/17.11/18.6 build, verify and package smoke matrix passed | Release job skipped because no tag was created |
 | Latest CI | [35273364265](https://github.com/senhakan/pgdumpplus/actions/runs/35273364265) | Commit ec35514: immutable-action workflow, PG13.23/17.11/18.6 build, verify and all DEB/RPM smoke jobs passed | Release job skipped because no tag was created |
+| B2 provenance dispatch | [35275197819](https://github.com/senhakan/pgdumpplus/actions/runs/35275197819) | Tagless dispatch passed full matrix, SBOM generation, tampered-file checksum rejection, asset attestations and `gh attestation verify` for every asset | No release was published; candidate/stable promotion remains B3 |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
