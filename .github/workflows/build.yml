@@ -219,6 +219,21 @@ jobs:
           cd ..
           cat SHA256SUMS.txt
 
+      - name: Reject a tampered release asset
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=$(find all-dist -maxdepth 1 -type f ! -name 'SBOM.spdx.json' | sort | head -1)
+          backup=$(mktemp)
+          cp "$target" "$backup"
+          trap 'cp "$backup" "$target"' EXIT
+          printf 'tamper-check' >> "$target"
+          if (cd all-dist && sha256sum --check ../SHA256SUMS.txt); then
+            echo 'tampered asset unexpectedly passed checksum verification' >&2
+            exit 1
+          fi
+
       - name: Attest release assets
         uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
         with:
