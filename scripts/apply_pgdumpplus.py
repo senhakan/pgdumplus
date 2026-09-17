@@ -372,6 +372,50 @@ validate_all_mask_entries(TableInfo *tblinfo, int numTables)
 
 """
 
+MASK_DRYRUN_C = r"""
+static void
+pgdp_emit_plan(TableInfo *tblinfo, int numTables)
+{
+	DumpMaskEntry *me;
+	int i;
+	bool first = true;
+
+	if (strcmp(pgdp_plan_format, "json") == 0)
+		printf("{\\\"schema_version\\\":1,\\\"masks\\\":[");
+	else
+		printf("pg_dumpplus dry-run plan\\n");
+	for (me = dump_mask_entries; me; me = me->next)
+	{
+		for (i = 0; i < numTables; i++)
+		{
+			TableInfo *tbinfo = &tblinfo[i];
+			int k;
+			if (tbinfo->dobj.catId.oid != me->relid)
+				continue;
+			for (k = 0; k < tbinfo->numatts; k++)
+			{
+				if (strcmp(tbinfo->attnames[k], me->colname) != 0)
+					continue;
+				if (strcmp(pgdp_plan_format, "json") == 0)
+				{
+					if (!first) printf(",");
+					printf("{\\\"table\\\":\\\"%s\\\",\\\"column\\\":\\\"%s\\\",\\\"type\\\":\\\"%s\\\",\\\"mask\\\":\\\"%s\\\",\\\"filter\\\":false}",
+						   tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k],
+						   me->text_ret ? "preset" : "custom");
+				}
+				else
+					printf("table=%s column=%s type=%s mask=%s filter=false\\n",
+						   tbinfo->dobj.name, me->colname, tbinfo->atttypnames[k],
+						   me->text_ret ? "preset" : "custom");
+				first = false;
+			}
+		}
+	}
+	if (strcmp(pgdp_plan_format, "json") == 0)
+		printf("]}\\n");
+}
+"""
+
 def main(root):
     P = lambda *a: os.path.join(root, *a)
     manifest = Path(root) / ".pgdumpplus-patch.json"
@@ -645,10 +689,20 @@ find_unquoted_char(const char *s, char sep)
                         "\t\tif (tabledata_where_oids.head == NULL)\n"
                         f"\t\t\t{no_match_err}\n"
                         "\t}\n\n") + t[last:]
+        fm_err = "fatal" if PG13 else "pg_fatal"
         t = rep_once(t, "\ttblinfo = getSchemaData(fout, &numTables);",
                      "\ttblinfo = getSchemaData(fout, &numTables);\n"
+                     f"\tif (pgdp_plan_format_set && !pgdp_dry_run)\n\t\t{fm_err}(\"--plan-format requires --dry-run\");\n"
+                     f"\tif (pgdp_dry_run && filename != NULL)\n\t\t{fm_err}(\"--dry-run cannot be used with --file\");\n"
                      "\tif (dump_mask_entries != NULL)\n"
-                     "\t\tvalidate_all_mask_entries(tblinfo, numTables);",
+                     "\t\tvalidate_all_mask_entries(tblinfo, numTables);\n"
+                     "\tif (pgdp_dry_run)\n"
+                     "\t{\n"
+                     "\t\tif (pgdp_plan_format_set && strcmp(pgdp_plan_format, \"text\") != 0 && strcmp(pgdp_plan_format, \"json\") != 0)\n"
+                     f"\t\t\t{fm_err}(\"--plan-format must be text or json\");\n"
+                     "\t\tpgdp_emit_plan(tblinfo, numTables);\n"
+                     "\t\texit_nicely(0);\n"
+                     "\t}",
                      "dd-mask-validate-all")
         # 4j: makeTableDataInfo
         mmt = re.search(r"static void\nmakeTableDataInfo\(DumpOptions \*dopt, TableInfo \*tbinfo\)\n\{\n\tTableDataInfo \*tdinfo;\n", t)
@@ -690,6 +744,9 @@ find_unquoted_char(const char *s, char sep)
             "\tbool\t\t\tskip;\t\t\t/* validation'da true olur */\n"
             "} DumpMaskEntry;\n"
             "static DumpMaskEntry *dump_mask_entries = NULL;\n"
+            "static bool pgdp_dry_run = false;\n"
+            "static const char *pgdp_plan_format = \"text\";\n"
+            "static bool pgdp_plan_format_set = false;\n"
             "/* pg_dumpplus: forward decls (tanimlar fmtCopyColumnList oncesi) */\n"
             "static char *mask_expr_for(Oid relid, const char *colname);\n"
             "static bool table_has_masks(TableInfo *tbinfo);\n"
@@ -700,7 +757,9 @@ find_unquoted_char(const char *s, char sep)
         # 5b: long_options 27 (26=where'den sonra)
         t = rep_once(t, '{"where", required_argument, NULL, 26},\t/* pg_dumpplus */',
             '{"where", required_argument, NULL, 26},\t/* pg_dumpplus */\n'
-            '\t\t{"mask", required_argument, NULL, 27},\t\t/* pg_dumpplus */',
+            '\t\t{"mask", required_argument, NULL, 27},\t\t/* pg_dumpplus */\n'
+            '\t\t{"dry-run", no_argument, NULL, 28},\t\t/* pg_dumpplus */\n'
+            '\t\t{"plan-format", required_argument, NULL, 29},\t/* pg_dumpplus */',
             "dm-longopt")
         # 5c: case 27 (case 26 blogundan hemen sonra)
         t = rep_once(t, "\t\t\tcase 26:\t\t\t\t/* pg_dumpplus: --where=PATTERN:FILTER */\n"
@@ -711,13 +770,17 @@ find_unquoted_char(const char *s, char sep)
             "\t\t\t\tbreak;\n"
             "\t\t\tcase 27:\t\t\t\t/* pg_dumpplus: --mask=PATTERN:COLUMN:EXPR */\n"
             "\t\t\t\tsimple_string_list_append(&tabledata_mask_patterns, optarg);\n"
-            "\t\t\t\tbreak;\n",
+            "\t\t\t\tbreak;\n"
+            '\t\t\tcase 28:\t\t\t\tpgdp_dry_run = true; break;\n'
+            '\t\t\tcase 29:\t\t\t\tpgdp_plan_format = pg_strdup(optarg); pgdp_plan_format_set = true; break;\n',
             "dm-case")
         # 5d: help — --where satirindan once
         where_help = 'printf(_("  --where=PATTERN:FILTER   dump only rows matching SQL FILTER for\\n"'
         t = rep_once(t, where_help,
             'printf(_("  --mask=PATTERN:COLUMN:EXPR   replace COLUMN value with EXPR in dumped\\n"'
             '\t\t\t\t\t "                               data; EXPR: SQL or preset identity|phone|email|name|address|iban|card|uuid|all\\n"));\n'
+            'printf(_("  --dry-run                    print a catalog-only export plan\\n"));\n'
+            'printf(_("  --plan-format=text|json      select dry-run plan format\\n"));\n'
             + where_help, "dm-help")
         # 5e: cozum blogu — --where cozum bloğunun ardina
         mw = re.search(r"if \(tabledata_where_oids\.head == NULL\)\n[ \t]*\S[^\0]*?\n[ \t]*\}\n", t)
@@ -734,7 +797,7 @@ find_unquoted_char(const char *s, char sep)
         mfc = re.search(r"static const char \*\nfmtCopyColumnList\(const TableInfo \*ti, PQExpBuffer buffer\)\n\{\n", t)
         if not mfc: raise Fail("anchor [dm-fmt] yok")
         pos = mfc.start()
-        t = t[:pos] + MASK_HELPERS_C + MASK_VALIDATE_ALL_C.replace("@@FM@@", fm_err) + MASK_FMT_C + t[pos:]
+        t = t[:pos] + MASK_HELPERS_C + MASK_VALIDATE_ALL_C.replace("@@FM@@", fm_err) + MASK_DRYRUN_C.replace("@@FM@@", fm_err) + MASK_FMT_C + t[pos:]
         # 6b: COPY (SELECT) provizyonu -> maskeli liste; restore header'a dokunulmaz
         t = rep_once(t,
             "column_list = fmtCopyColumnList(tbinfo, clistBuf);",
