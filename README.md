@@ -1,7 +1,7 @@
 # pg_dumpplus — PostgreSQL dump filtering and masking
 
-**A drop-in PostgreSQL `pg_dump` alternative for row filtering, column masking,
-and safer data exports.**
+**A PostgreSQL `pg_dump`-compatible client for row filtering, column masking,
+and controlled data exports.**
 
 [![Release](https://img.shields.io/github/v/release/senhakan/pgdumpplus)](https://github.com/senhakan/pgdumpplus/releases/latest)
 [![License: PostgreSQL](https://img.shields.io/badge/license-PostgreSQL-blue)](LICENSE)
@@ -12,13 +12,9 @@ See [CHANGELOG.md](CHANGELOG.md) for release history and migration notes.
 
 `pg_dumpplus` extends PostgreSQL's `pg_dump` with **row-level filtering** and
 **column-level masking**. Export recent records, select a tenant's data, or
-anonymize selected fields in one command—with familiar dump formats and standard
+replace selected values in one command—with familiar dump formats and standard
 restore tools. It is designed for developers, database administrators, data
-engineers, staging refreshes, support exports, and privacy-safe test data.
-
-If you searched for a PostgreSQL data export tool, filtered `pg_dump`, masked
-database dump, or anonymized PostgreSQL backup, this is the command-line client
-you can install alongside the official PostgreSQL tools.
+engineers, staging refreshes, and support exports.
 
 ```bash
 pg_dumpplus -d mydb -Fc \
@@ -47,7 +43,9 @@ tools. It is an independent project based on PostgreSQL's `pg_dump`.
 ### Common use cases
 
 - Export only one tenant, customer, date range, or business partition.
-- Create staging and QA dumps without exposing email, phone, address, or payment data.
+- Create staging and QA dumps with selected email, phone, address, or payment
+  fields replaced before export. This is partial masking, not anonymization or
+  a compliance guarantee.
 - Produce support extracts while keeping PostgreSQL's custom, plain, and directory formats.
 - Run repeatable, scriptable exports in CI/CD and operational tooling.
 
@@ -103,8 +101,8 @@ attestation. Verify downloaded bytes before installation:
 sha256sum --check SHA256SUMS.txt
 ```
 
-Use GitHub's Artifact attestations verification for provenance; checksums alone
-authenticate integrity, not build origin.
+Use GitHub's Artifact attestations verification for provenance; checksums verify
+integrity, not build origin.
 
 ## Filter rows
 

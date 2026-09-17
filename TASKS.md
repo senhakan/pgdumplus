@@ -10,7 +10,8 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 - [CI 35253870996](https://github.com/senhakan/pgdumpplus/actions/runs/35253870996): success.
 - Patcher safety, compiled packages, PG13/17 roundtrips and package smoke tests exist.
 - New presets are on main after v1.2.0; not yet part of a newer stable release.
-- Strict masks, dry-run, profiles and deterministic pseudonyms are not implemented.
+- Strict masks and catalog-only dry-run are implemented and covered by CI.
+  Profiles and deterministic pseudonyms remain unimplemented by design.
 - This tracker supersedes stale defect/completion claims in the previous list.
 
 ## Work queue
@@ -30,7 +31,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | D1-macos | BLOCKED | D1-linux | macOS packages and Homebrew tap (D1) |
 | D2-local | BLOCKED | B1, B2 | Signed APT/RPM metadata and local client tests (D2) |
 | D2-public | BLOCKED | D2-local, B3, hosting/key decision | Hosted channels and upgrades (D2) |
-| D3a | READY | — | Accurate README/TR, matrix, changelog, contribution/security docs (D3) |
+| D3a | DONE | — | Accurate README/TR, matrix, changelog, contribution/security docs (D3) |
 | D3b | BLOCKED | B3 | Release-binary demo/tutorials and launch drafts (D3) |
 | CLEAN1 | DONE | — | Audit and retire unsafe/redundant legacy entry points |
 
@@ -56,10 +57,11 @@ These are target milestones, not published versions or calendar promises.
 | A1 local | a80188d | PG17.5 candidate build + isolated suite: 40 passed; patcher/idempotence checks passed | Strict validation is fail-fast |
 | A1 CI | [35260089452](https://github.com/senhakan/pgdumpplus/actions/runs/35260089452) | PG13/17 builds, isolated verification and DEB/RPM smoke jobs passed | Release publication remains a separate B3 gate |
 | A2 CI | [35264310934](https://github.com/senhakan/pgdumpplus/actions/runs/35264310934) | Dry-run text/JSON checks plus PG13/17 builds and package smoke jobs passed | Superseded by newer coverage below |
-| A2 escaping CI | [35266116755](https://github.com/senhakan/pgdumpplus/actions/runs/35266116755) | JSON identifier escaping test, PG13/17 builds and package smoke jobs passed | Remaining A2 work: side-effect/custom-SQL coverage |
+| A2 escaping CI | [35266116755](https://github.com/senhakan/pgdumpplus/actions/runs/35266116755) | JSON identifier escaping test, PG13/17 builds and package smoke jobs passed | Superseded by latest full matrix |
 | Current CI | [35267465415](https://github.com/senhakan/pgdumpplus/actions/runs/35267465415) | All PG13/17 build, verify, DEB and RPM smoke jobs passed | Release-only attestation runs on a version tag |
 | CLEAN1 | 1b79a32 + local audit | Retired destructive/redundant legacy scripts; consolidated verification remains in `verify_isolated.py` | Historical private test environments are intentionally not reproduced |
 | Latest CI | [35269564040](https://github.com/senhakan/pgdumpplus/actions/runs/35269564040) | Commit dd8b81e: PG13/17 builds, isolated verification, DEB/RPM smoke jobs all passed | Release publication and provenance remain tag-only B3 gates |
+| D3a | 035371e | Public README, Turkish guide, contribution guidance, security policy and issue templates reviewed; keyword stuffing and unqualified privacy claims removed | Release-binary tutorials and launch drafts wait for B3 |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
