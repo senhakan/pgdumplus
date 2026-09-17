@@ -139,7 +139,7 @@ cross-major restore limitations. Reject newer-server/older-client combinations.
 Separate project SemVer, upstream PG version and native package revision.
 Expose them with source commit through build information. Prove native upgrade
 ordering when only the project version changes. Before adding another major,
-document the default-command ownership policy (currently PG17), and test
+document the default-command ownership policy (currently PG18), and test
 coexistence, upgrade and removal without changing system clients.
 Acceptance: no scattered contradictory version lists; tested support matrix;
 current source checksums; project-version upgrades recognized by apt/rpm.

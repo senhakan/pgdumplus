@@ -72,7 +72,7 @@ def archive(root, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("version", help="PostgreSQL version, e.g. 17.8")
+    parser.add_argument("version", help="PostgreSQL version, e.g. 18.6")
     parser.add_argument("--format", choices=("rpm", "deb"), required=True)
     parser.add_argument("--build-dir", type=Path, default=Path("_build"))
     parser.add_argument("--output", type=Path, default=Path("dist"))
