@@ -70,6 +70,7 @@ These are target milestones, not published versions or calendar promises.
 | Latest compatibility CI | [35272617138](https://github.com/senhakan/pgdumpplus/actions/runs/35272617138) | Commit 42b8543: PG13.23/17.11/18.6 builds, verify jobs, all DEB/RPM smoke jobs passed after PG18 fix | Release job skipped because no tag was created |
 | Latest docs CI | [35273077003](https://github.com/senhakan/pgdumpplus/actions/runs/35273077003) | Commit 54f26f8: current PG13.23/17.11/18.6 build, verify and package smoke matrix passed | Release job skipped because no tag was created |
 | Latest CI | [35273364265](https://github.com/senhakan/pgdumpplus/actions/runs/35273364265) | Commit ec35514: immutable-action workflow, PG13.23/17.11/18.6 build, verify and all DEB/RPM smoke jobs passed | Release job skipped because no tag was created |
+| A3 domain/Unicode CI | [35278380212](https://github.com/senhakan/pgdumpplus/actions/runs/35278380212) | Commit 27b285e: text-domain custom cast, Unicode value, strict domain preset rejection and full PG13.23/17.11/18.6 matrix passed | Broader snapshot-concurrency and upstream regression evidence remains |
 | B2 provenance dispatch | [35275197819](https://github.com/senhakan/pgdumpplus/actions/runs/35275197819) | Tagless dispatch passed full matrix, SBOM generation, tampered-file checksum rejection, asset attestations and `gh attestation verify` for every asset | No release was published; candidate/stable promotion remains B3 |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
