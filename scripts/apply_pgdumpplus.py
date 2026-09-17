@@ -715,6 +715,7 @@ find_unquoted_char(const char *s, char sep)
                      "\ttblinfo = getSchemaData(fout, &numTables);\n"
                      f"\tif (pgdp_plan_format_set && !pgdp_dry_run)\n\t\t{fm_err}(\"--plan-format requires --dry-run\");\n"
                      f"\tif (pgdp_dry_run && filename != NULL)\n\t\t{fm_err}(\"--dry-run cannot be used with --file\");\n"
+                     f"\tif (dopt.schemaOnly && dump_mask_entries != NULL)\n\t\t{fm_err}(\"--mask cannot be used with --schema-only\");\n"
                      "\tif (dump_mask_entries != NULL)\n"
                      "\t\tvalidate_all_mask_entries(tblinfo, numTables);\n"
                      "\tif (pgdp_dry_run)\n"

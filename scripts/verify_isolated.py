@@ -221,6 +221,7 @@ class Suite:
         for options, fragment in (
             (["--dry-run", "-f", path], "cannot be used"),
             (["--plan-format=json"], "requires --dry-run"),
+            (["--schema-only", "--mask=public.customers:ssn:identity"], "schema-only"),
         ):
             result = self.run([self.args.binary, "-d", self.source, *options], check=False)
             if result.returncode == 0 or fragment not in result.stderr:
