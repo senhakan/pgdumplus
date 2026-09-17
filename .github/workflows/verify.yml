@@ -107,6 +107,7 @@ jobs:
             -f /tmp/cross-major.dump >/tmp/cross-major.out 2>/tmp/cross-major.err
           status=$?
           set -e
-          cat /tmp/cross-major.err
           [[ $status -ne 0 ]]
-          grep -Fq 'server major 18 is newer than this client major 17' /tmp/cross-major.err
+          grep -Fq 'server version mismatch' /tmp/cross-major.err
+          grep -Fq 'server version: 18.6' /tmp/cross-major.err
+          grep -Fq 'pg_dumpplus version: 17.11' /tmp/cross-major.err
