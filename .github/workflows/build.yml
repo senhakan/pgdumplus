@@ -33,6 +33,17 @@ jobs:
           python3 scripts/public_audit.py
           python3 -m json.tool docs/design/profile-schema.json >/dev/null
           python3 scripts/validate_profile.py docs/examples/profiles/*.json
+          invalid_profile=$(mktemp)
+          printf '%s' '{"schema_version":1,"schema_version":1}' > "$invalid_profile"
+          if python3 scripts/validate_profile.py "$invalid_profile"; then
+            echo 'duplicate profile keys were accepted' >&2
+            exit 1
+          fi
+          printf '%s' '{"schema_version":1,"unexpected":true}' > "$invalid_profile"
+          if python3 scripts/validate_profile.py "$invalid_profile"; then
+            echo 'unknown profile fields were accepted' >&2
+            exit 1
+          fi
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             V="$REQUESTED_VERSIONS"
           else
