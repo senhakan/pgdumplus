@@ -72,6 +72,10 @@ yöneticisi kurar.
 `--build-info`, pg_dumpplus proje sürümünü, upstream PostgreSQL sürümünü ve
 derlemede kullanılan kaynak commit'ini gösterir.
 
+Profil dosyası okuyucusu henüz yayımlanmadı. Gelecekteki strict JSON sözleşmesi
+[`docs/design/profile-schema.json`](design/profile-schema.json) dosyasında
+tanımlıdır; mevcut istemci `--profile` seçeneği sunmaz.
+
 Desteklenen tüm ana sürümler birlikte kurulabilir. Dosyalar `/opt/pgdumpplus/<major>/` altında,
 komut bağlantıları `/usr/bin/` içinde bulunur. Sistemdeki `pg_dump` ve
 `pg_restore` komutları değişmez. PG18 kaldırılınca sürümsüz komut da kaldırılır;

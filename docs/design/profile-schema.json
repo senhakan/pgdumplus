@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/senhakan/pgdumpplus/profile-schema-v1.json",
+  "title": "pg_dumpplus profile (design)",
+  "description": "Schema contract for the future compiled profile reader; not accepted by current releases.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "filters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["table", "where"],
+        "properties": {
+          "table": {"type": "string", "minLength": 1},
+          "where": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "masks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["table", "column"],
+        "properties": {
+          "table": {"type": "string", "minLength": 1},
+          "column": {"type": "string", "minLength": 1},
+          "preset": {"type": "string", "minLength": 1},
+          "expression": {"type": "string", "minLength": 1}
+        },
+        "oneOf": [
+          {"required": ["preset"], "not": {"required": ["expression"]}},
+          {"required": ["expression"], "not": {"required": ["preset"]}}
+        ]
+      }
+    }
+  }
+}
