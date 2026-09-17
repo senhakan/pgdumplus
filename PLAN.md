@@ -36,7 +36,7 @@ and continue; built-in text masks can be incompatible with destination types.
 | Install/upgrade/remove | scripts/smoke_package.sh |
 | CI and releases | .github/workflows/build.yml, .github/workflows/verify.yml |
 | Usage | README.md, docs/pgdumplus-tr.md |
-| Legacy entry points to audit | scripts/demo_setup.sql, scripts/mask_verify_ci.sh, scripts/verify_pgdumpplus.sh |
+| Legacy entry points | Retired; verification coverage is consolidated in `scripts/verify_isolated.py` |
 
 ## Execution protocol for any model
 

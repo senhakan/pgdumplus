@@ -32,11 +32,11 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | D2-public | BLOCKED | D2-local, B3, hosting/key decision | Hosted channels and upgrades (D2) |
 | D3a | READY | — | Accurate README/TR, matrix, changelog, contribution/security docs (D3) |
 | D3b | BLOCKED | B3 | Release-binary demo/tutorials and launch drafts (D3) |
-| CLEAN1 | READY | — | Audit and retire unsafe/redundant legacy entry points |
+| CLEAN1 | DONE | — | Audit and retire unsafe/redundant legacy entry points |
 
-CLEAN1: inspect demo_setup.sql, mask_verify_ci.sh and verify_pgdumpplus.sh.
-Migrate unique useful coverage to verify_isolated.py before removing scripts;
-update references. Do not execute destructive legacy scripts on a live server.
+CLEAN1: completed. Destructive and superseded shell scripts were removed after
+their useful coverage was consolidated in `verify_isolated.py`; no repository
+references remain.
 
 ## Release boundaries
 
@@ -58,6 +58,7 @@ These are target milestones, not published versions or calendar promises.
 | A2 CI | [35264310934](https://github.com/senhakan/pgdumpplus/actions/runs/35264310934) | Dry-run text/JSON checks plus PG13/17 builds and package smoke jobs passed | Remaining A2 work: escaping and side-effect/custom-SQL coverage |
 | A2 escaping CI | [35266116755](https://github.com/senhakan/pgdumpplus/actions/runs/35266116755) | JSON identifier escaping test, PG13/17 builds and package smoke jobs passed | Remaining A2 work: side-effect/custom-SQL coverage |
 | Current CI | [35267465415](https://github.com/senhakan/pgdumpplus/actions/runs/35267465415) | All PG13/17 build, verify, DEB and RPM smoke jobs passed | Release-only attestation runs on a version tag |
+| CLEAN1 | 1b79a32 + local audit | Retired destructive/redundant legacy scripts; consolidated verification remains in `verify_isolated.py` | Historical private test environments are intentionally not reproduced |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
