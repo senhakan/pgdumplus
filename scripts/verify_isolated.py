@@ -247,7 +247,7 @@ class Suite:
             "-t", "public.customers", "--where=public.customers:id <= 3",
         ], "SELECT count(*) FROM customers", "3"))
         self.case("partition child masking", lambda: self.roundtrip([
-            "-t", "public.partitioned_events_1",
+            "-t", "public.partitioned_events",
             "--mask=public.partitioned_events_1:secret:all",
         ], "SELECT secret FROM partitioned_events_1 ORDER BY id", "*****|****|*****"))
         self.case("custom text and integer masks", lambda: self.roundtrip([
