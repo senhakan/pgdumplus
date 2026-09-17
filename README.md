@@ -93,6 +93,18 @@ Tarballs use the same `opt/` and `usr/` layout and can also be extracted into a
 private directory. Run `<directory>/usr/bin/pg_dumpplus-17` from there. Choose
 the archive for your OS; its runtime libraries must be installed separately.
 
+### Verify a release
+
+Release assets include `SHA256SUMS.txt`, `SBOM.spdx.json`, and a GitHub build
+attestation. Verify downloaded bytes before installation:
+
+```bash
+sha256sum --check SHA256SUMS.txt
+```
+
+Use GitHub's Artifact attestations verification for provenance; checksums alone
+authenticate integrity, not build origin.
+
 ## Filter rows
 
 Pass a table pattern and a SQL condition, without the `WHERE` keyword:
