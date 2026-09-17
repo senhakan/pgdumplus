@@ -48,6 +48,9 @@ INSERT INTO "Odd:Table" VALUES
 CREATE TABLE mask_edges (id integer PRIMARY KEY, value text);
 INSERT INTO mask_edges VALUES
     (1, NULL), (2, ''), (3, '1'), (4, '12'), (5, '123'), (6, '1234'), (7, '12345');
+CREATE TABLE partitioned_events (id integer, secret text) PARTITION BY RANGE (id);
+CREATE TABLE partitioned_events_1 PARTITION OF partitioned_events FOR VALUES FROM (1) TO (4);
+INSERT INTO partitioned_events VALUES (1, 'alpha'), (2, 'beta'), (3, 'gamma');
 """
 
 
@@ -243,6 +246,10 @@ class Suite:
         self.case("table selection and filter", lambda: self.roundtrip([
             "-t", "public.customers", "--where=public.customers:id <= 3",
         ], "SELECT count(*) FROM customers", "3"))
+        self.case("partition child masking", lambda: self.roundtrip([
+            "-t", "public.partitioned_events_1",
+            "--mask=public.partitioned_events_1:secret:all",
+        ], "SELECT secret FROM partitioned_events_1 ORDER BY id", "*****|****|*****"))
         self.case("custom text and integer masks", lambda: self.roundtrip([
             "--mask=public.customers:full_name:upper(full_name)",
             "--mask=public.customers:birth_year:2000",
