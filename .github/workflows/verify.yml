@@ -52,7 +52,7 @@ jobs:
           apt-get update -qq
           apt-get install -y -qq --no-install-recommends \
             build-essential bison flex zlib1g-dev pkg-config \
-            postgresql-client python3 ca-certificates curl
+            postgresql-client python3 ca-certificates curl jq
 
       - name: Build candidate clients without installing
         shell: bash
@@ -68,6 +68,8 @@ jobs:
           python3 "$GITHUB_WORKSPACE/scripts/test_patcher.py" "$SRC"
           python3 "$GITHUB_WORKSPACE/scripts/apply_pgdumpplus.py" "$SRC"
           cd "$SRC"
+          PROJECT=$(jq -r '.project_version' "$GITHUB_WORKSPACE/support-matrix.json")
+          export CPPFLAGS="${CPPFLAGS:-} -DPGDUMPPLUS_PROJECT_VERSION=\\\"$PROJECT\\\" -DPGDUMPPLUS_SOURCE_COMMIT=\\\"${GITHUB_SHA:0:12}\\\""
           ./configure --without-readline --without-icu >configure.log 2>&1 || { tail -30 configure.log; exit 1; }
           make -C src/backend generated-headers >headers.log 2>&1 || { tail -30 headers.log; exit 1; }
           # Direct subdirectory builds can race over shared prerequisite archives.

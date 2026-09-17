@@ -189,6 +189,16 @@ MASK_RESOLVE_C = r"""
 
 """
 
+BUILD_INFO_C = r'''
+	/* pg_dumpplus: build identity is injected by the packaging build. */
+#ifndef PGDUMPPLUS_PROJECT_VERSION
+#define PGDUMPPLUS_PROJECT_VERSION "unknown"
+#endif
+#ifndef PGDUMPPLUS_SOURCE_COMMIT
+#define PGDUMPPLUS_SOURCE_COMMIT "unknown"
+#endif
+'''
+
 MASK_HELPERS_C = r"""/*
  * pg_dumpplus: Return the masking SQL expression registered for
  * (relid, colname) via --mask, or NULL.  Skipped entries count as NULL.
@@ -605,6 +615,7 @@ find_unquoted_char(const char *s, char sep)
     PG13 = "pg_fatal(" not in t      # PG13'te pg_fatal yok -> fatal()
     if "pg_dumpplus" not in t:
         # 4a: statik listeler
+        t = BUILD_INFO_C + t
         t = rep_once(t, "static SimpleOidList tabledata_exclude_oids = {NULL, NULL};",
             "static SimpleOidList tabledata_exclude_oids = {NULL, NULL};\n"
             "/* pg_dumpplus: --where desenleri ve cozumlenmis OID'leri */\n"
@@ -787,7 +798,8 @@ find_unquoted_char(const char *s, char sep)
             '{"where", required_argument, NULL, 26},\t/* pg_dumpplus */\n'
             '\t\t{"mask", required_argument, NULL, 27},\t\t/* pg_dumpplus */\n'
             '\t\t{"dry-run", no_argument, NULL, 28},\t\t/* pg_dumpplus */\n'
-            '\t\t{"plan-format", required_argument, NULL, 29},\t/* pg_dumpplus */',
+            '\t\t{"plan-format", required_argument, NULL, 29},\t/* pg_dumpplus */\n'
+            '\t\t{"build-info", no_argument, NULL, 30},\t\t/* pg_dumpplus */',
             "dm-longopt")
         # 5c: case 27 (case 26 blogundan hemen sonra)
         t = rep_once(t, "\t\t\tcase 26:\t\t\t\t/* pg_dumpplus: --where=PATTERN:FILTER */\n"
@@ -800,7 +812,8 @@ find_unquoted_char(const char *s, char sep)
             "\t\t\t\tsimple_string_list_append(&tabledata_mask_patterns, optarg);\n"
             "\t\t\t\tbreak;\n"
             '\t\t\tcase 28:\t\t\t\tpgdp_dry_run = true; break;\n'
-            '\t\t\tcase 29:\t\t\t\tpgdp_plan_format = pg_strdup(optarg); pgdp_plan_format_set = true; break;\n',
+            '\t\t\tcase 29:\t\t\t\tpgdp_plan_format = pg_strdup(optarg); pgdp_plan_format_set = true; break;\n'
+            '\t\t\tcase 30:\t\t\t\tprintf("pg_dumpplus project %s; PostgreSQL %s; source %s\\n", PGDUMPPLUS_PROJECT_VERSION, PG_VERSION, PGDUMPPLUS_SOURCE_COMMIT); exit(0);\n',
             "dm-case")
         # 5d: help — --where satirindan once
         where_help = 'printf(_("  --where=PATTERN:FILTER   dump only rows matching SQL FILTER for\\n"'
@@ -809,6 +822,7 @@ find_unquoted_char(const char *s, char sep)
             '\t\t\t\t\t "                               data; EXPR: SQL or preset identity|phone|email|name|address|iban|card|uuid|all\\n"));\n'
             'printf(_("  --dry-run                    print a catalog-only export plan\\n"));\n'
             'printf(_("  --plan-format=text|json      select dry-run plan format\\n"));\n'
+            'printf(_("  --build-info                 print project, upstream and source identity\\n"));\n'
             + where_help, "dm-help")
         # 5e: cozum blogu — --where cozum bloğunun ardina
         mw = re.search(r"if \(tabledata_where_oids\.head == NULL\)\n[ \t]*\S[^\0]*?\n[ \t]*\}\n", t)

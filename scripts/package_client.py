@@ -130,6 +130,15 @@ def main():
     print(run([sys.executable, HERE / "apply_pgdumpplus.py", source]), end="")
     prefix = "/opt/pgdumpplus/" + major
     env = dict(os.environ)
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "--short=12", "HEAD"],
+            cwd=str(HERE.parent), text=True).strip()
+    except (OSError, subprocess.CalledProcessError):
+        commit = "unknown"
+    cppflags = env.get("CPPFLAGS", "")
+    env["CPPFLAGS"] = (cppflags + " -DPGDUMPPLUS_PROJECT_VERSION=\\\"" + project
+                        + "\\\" -DPGDUMPPLUS_SOURCE_COMMIT=\\\"" + commit + "\\\"").strip()
     # Make reduces $$ to $, then the shell quotes preserve the literal ELF token.
     env["LDFLAGS"] = "-Wl,-rpath,'$$ORIGIN/../lib',--enable-new-dtags"
     run(["./configure", "--prefix=" + prefix, "--without-readline", "--without-icu",
