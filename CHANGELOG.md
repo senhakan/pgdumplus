@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased
+## 2.0.0
 
 - Added compiled `--profile=FILE` support for strict profile v1 JSON files;
   profiles merge with CLI filters/masks and are validated before export.
 
-## 2.0.0-rc.1 (candidate)
+## 2.0.0-rc.1 (previous candidate)
 
 - Invalid masking rules now fail before table data export instead of being
   silently skipped.

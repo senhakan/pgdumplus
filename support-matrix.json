@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project_version": "2.0.0",
   "channels": {
-    "stable": "v1.2.0",
-    "next": "v2.0.0-rc.1"
+    "stable": "v2.0.0",
+    "next": "main"
   },
   "postgresql": [
     {"major": 13, "status": "legacy", "source_series": "13.x", "tested_minor": "13.23", "source_sha256": "3fa89e67db790ecdb5fd3709c525c1b114662b72090de7a1768094dc9ebb5639"},
