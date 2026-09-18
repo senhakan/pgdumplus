@@ -97,7 +97,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Build dependencies
-        run: dnf install -y gcc make bison flex perl zlib-devel openssl-devel rpm-build python3 curl tar gzip diffutils binutils
+        run: dnf install -y gcc make bison flex perl zlib-devel openssl-devel rpm-build python3 tar gzip diffutils binutils
 
       - name: Build client package
         run: |
