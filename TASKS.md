@@ -97,11 +97,6 @@ outside Git; put only sanitized conclusions here.
 
 ## Resume instructions
 
-Next implementation task: finish A3's upstream PostgreSQL TAP/regression
-comparison against a matching vanilla build and record the exact command and
-result. Keep the existing synthetic format, partition and snapshot checks as
-regression coverage; do not weaken expected values to make a test pass.
-
 Next implementation task: complete the security review of
 `docs/design/pseudonymization.md` (C2-design), then implement typed
 pseudonymization only after its key-handling blockers are resolved. C1’s JSON
