@@ -60,7 +60,7 @@ def validate(path):
     unknown = set(value) - allowed
     if unknown:
         raise ValidationError("unknown field: %s" % sorted(unknown)[0])
-    if value.get("schema_version") != 1:
+    if type(value.get("schema_version")) is not int or value["schema_version"] != 1:
         raise ValidationError("schema_version must be 1")
     for section, required in (("filters", ("table", "where")), ("masks", ("table", "column"))):
         entries = value.get(section, [])
