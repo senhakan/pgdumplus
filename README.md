@@ -107,6 +107,10 @@ The client and build-time contract checker (`scripts/validate_profile.py`) rejec
 duplicate keys, unknown fields and malformed profile entries without external
 Python packages.
 
+Practical, synthetic release-binary examples are in
+[`docs/tutorials.md`](docs/tutorials.md); a non-published announcement draft is
+kept in [`docs/launch-draft.md`](docs/launch-draft.md).
+
 All supported majors can be installed together. Files live under
 `/opt/pgdumpplus/<major>/`, with command links in `/usr/bin/`. System `pg_dump`
 and `pg_restore` commands are unchanged. Removing PG18 removes the unversioned
