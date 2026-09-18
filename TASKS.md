@@ -91,6 +91,7 @@ These are target milestones, not published versions or calendar promises.
 | D3b launch assets | [35300111335](https://github.com/senhakan/pgdumpplus/actions/runs/35300111335) | Commit c3d0037: added release-binary tenant, date-range and masked-customer tutorials plus a non-published launch draft; documentation links and full matrix CI passed | Tutorials use synthetic/approved data; external posting remains manual |
 | D2 distribution contract | [35292021026](https://github.com/senhakan/pgdumpplus/actions/runs/35292021026) | Commit 6420190: signed-channel contract documentation and links passed the full build/package/verify matrix | Hosted repository, signing-key ownership and real channel install/upgrade tests remain external release decisions |
 | C2 design contract | [35292795924](https://github.com/senhakan/pgdumpplus/actions/runs/35292795924) | Commit de4a70f: typed scope, canonicalization, protected key-FD interface and leakage-test requirements documented and passed the full CI matrix | Security review and implementation evidence are still required before marking C2-design done |
+| C2 review checklist | local / `docs/design/pseudonymization-review.md` | Added an explicit primitive, key-boundary, leakage, typed-output and parallelism gate matrix; it deliberately keeps C2 blocked until independent review and runtime vectors exist | No pseudonymization code or CLI is enabled |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
