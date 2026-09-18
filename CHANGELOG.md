@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.0
 
 - Added native package and runtime coverage for PostgreSQL 14, 15 and 16 on
   EL8, EL9 and EL10 alongside the existing 13, 17 and 18 builds.
