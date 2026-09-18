@@ -255,6 +255,9 @@ jobs:
           pattern: pg_dumpplus-*
           merge-multiple: true
 
+      - name: Enforce release boundary
+        run: python3 scripts/release_gate.py "${GITHUB_REF_NAME:-}"
+
       - name: Validate release asset set
         shell: bash
         run: |
