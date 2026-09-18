@@ -27,6 +27,16 @@ pg_dumpplus -d mydb -Fc \
 This exports the database with only the last 30 days of orders and the specified
 customer columns masked. Other tables and columns are exported normally.
 
+### See it in action
+
+The profile workflow keeps row filtering and column masking in one repeatable
+command:
+
+![CLI profile export preview](docs/assets/cli-preview.gif)
+
+The animation is a synthetic preview; use the matching PostgreSQL-major client
+for your database and review the restored dump before sharing it.
+
 ## Why pg_dumpplus?
 
 - **Choose rows, not just tables.** Add SQL conditions with `--where`, similar
@@ -129,6 +139,15 @@ are rejected. Profile SQL expressions are trusted input, so protect the file
 with the same access controls as your database credentials. The upstream
 PostgreSQL `--filter=FILE` option is a separate feature and does not define
 pg_dumpplus masking rules.
+
+### Five-minute first export
+
+1. Install the package matching the PostgreSQL server major version.
+2. Copy a profile from [`docs/examples/profiles/`](docs/examples/profiles/) and
+   edit its table, filter, and mask rules.
+3. Run `pg_dumpplus-18 --dbname=app --profile=profile.json -Fc -f export.dump`.
+4. Restore into a disposable database with the matching `pg_restoreplus-18` and
+   inspect the filtered and masked values before distributing the dump.
 
 Practical, synthetic release-binary examples are in
 [`docs/tutorials.md`](docs/tutorials.md); a non-published announcement draft is
