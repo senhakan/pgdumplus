@@ -85,13 +85,14 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    container:
-      image: almalinux:8
     strategy:
       fail-fast: false
       matrix:
         pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
-    name: pg_dumpplus ${{ matrix.pg_version }} (EL8)
+        el: [8, 9, 10]
+    container:
+      image: almalinux:${{ matrix.el }}
+    name: pg_dumpplus ${{ matrix.pg_version }} (EL${{ matrix.el }})
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
@@ -114,14 +115,14 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: pg_dumpplus-${{ matrix.pg_version }}-linux-x86_64
+          name: pg_dumpplus-${{ matrix.pg_version }}-el${{ matrix.el }}-linux-x86_64
           path: dist/*
           if-no-files-found: error
 
       - name: Upload upgrade fixture
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: upgrade-fixture-${{ matrix.pg_version }}
+          name: upgrade-fixture-${{ matrix.pg_version }}-el${{ matrix.el }}
           path: /tmp/upgrade-rpm/*.rpm
           if-no-files-found: error
 
@@ -169,21 +170,22 @@ jobs:
     needs: [plan, build]
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    container:
-      image: almalinux:8
     strategy:
       fail-fast: false
       matrix:
         pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
+        el: [8, 9, 10]
+    container:
+      image: almalinux:${{ matrix.el }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: pg_dumpplus-${{ matrix.pg_version }}-linux-x86_64
+          name: pg_dumpplus-${{ matrix.pg_version }}-el${{ matrix.el }}-linux-x86_64
           path: packages
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: upgrade-fixture-${{ matrix.pg_version }}
+          name: upgrade-fixture-${{ matrix.pg_version }}-el${{ matrix.el }}
           path: packages
       - name: Install and remove in a runtime-only container
         shell: bash
@@ -248,8 +250,38 @@ jobs:
           export SKIP_OLDER_BUILD_INFO_VERSION_CHECK=1
           bash scripts/smoke_package.sh deb "${PGVER%%.*}" "$old" "${packages[0]}"
 
+  smoke-rocky:
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        pg_version: ${{ fromJson(needs.plan.outputs.versions) }}
+        rocky: [9, 10]
+    container:
+      image: rockylinux/rockylinux:${{ matrix.rocky }}
+    name: Rocky Linux ${{ matrix.rocky }} / pg_dumpplus ${{ matrix.pg_version }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: pg_dumpplus-${{ matrix.pg_version }}-el${{ matrix.rocky }}-linux-x86_64
+          path: packages
+      - name: Install and execute the EL${{ matrix.rocky }} RPM
+        shell: bash
+        env:
+          PGVER: ${{ matrix.pg_version }}
+        run: |
+          set -euo pipefail
+          rpm_package=$(find packages -maxdepth 1 -type f -name '*.el${{ matrix.rocky }}.x86_64.rpm')
+          [[ -n "$rpm_package" ]]
+          dnf install -y "$rpm_package"
+          pg_dumpplus-${PGVER%%.*} --version
+          pg_dumpplus-${PGVER%%.*} --build-info
+
   release:
-    needs: [build, build-deb, verify, smoke-rpm, smoke-deb]
+    needs: [build, build-deb, verify, smoke-rpm, smoke-deb, smoke-rocky]
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15

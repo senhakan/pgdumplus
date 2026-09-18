@@ -42,6 +42,8 @@ sisteminize uygun Linux **x86_64** paketini indirin.
 | Platform | Paket |
 | --- | --- |
 | RHEL / Rocky Linux / AlmaLinux 8 | `.el8.x86_64.rpm` |
+| RHEL / Rocky Linux / AlmaLinux 9 | `.el9.x86_64.rpm` |
+| RHEL / Rocky Linux / AlmaLinux 10 | `.el10.x86_64.rpm` |
 | Ubuntu 22.04 | `*_u2204_amd64.deb` |
 | Ubuntu 24.04 | `*_u2404_amd64.deb` |
 | Debian 12 | `*_d12_amd64.deb` |

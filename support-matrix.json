@@ -12,7 +12,7 @@
   ],
   "packages": {
     "architecture": ["x86_64"],
-    "rpm": ["el8"],
+    "rpm": ["el8", "el9", "el10"],
     "deb": ["ubuntu2204", "ubuntu2404", "debian12"]
   },
   "client_policy": "Use a client built for the same PostgreSQL major as the server. Cross-major restore is supported by pg_restore where PostgreSQL permits it; verify the target separately."
