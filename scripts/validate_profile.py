@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Validate the design profile contract without third-party dependencies.
+"""Validate pg_dumpplus profile v1 without third-party dependencies.
 
-This is a build-time/documentation checker.  The compiled client does not yet
-consume profile files; keeping this validator strict prevents examples from
-drifting away from the versioned contract.
+This checker mirrors the compiled client's strict structural contract and is
+used to catch documentation/example drift before packaging.
 """
 import json
 import sys

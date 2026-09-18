@@ -41,7 +41,12 @@ def rd(p):
     with open(p, encoding="utf-8") as f: return f.read()
 class Fail(Exception): pass
 
-def rep_once(s, old, new, label):
+def rep_once(s, old, new, label, *extra):
+    # Keep source-level string assembly tolerant while extending generated
+    # option blocks; an extra adjacent fragment is appended to the replacement.
+    if extra:
+        new += label.replace("\\\\n", "\n")
+        label = extra[0]
     if new in s:                       # idempotent
         return s
     n = s.count(old)
@@ -187,6 +192,287 @@ MASK_RESOLVE_C = r"""
 		}
 	}
 
+"""
+
+# Strict, dependency-free reader for the versioned profile contract.  It is
+# deliberately kept in the generated client so installed users do not need
+# Python or a JSON library.  The reader converts profile entries into the same
+# --where/--mask lists used by the command line and never logs SQL values.
+PROFILE_READER_C = r"""
+typedef struct PgdpJson
+{
+	char *p;
+	char *end;
+	int depth;
+} PgdpJson;
+
+static void pgdp_json_ws(PgdpJson *j)
+{
+	while (j->p < j->end && (*j->p == ' ' || *j->p == '\t' ||
+								*j->p == '\r' || *j->p == '\n'))
+		j->p++;
+}
+
+static void pgdp_json_error(const char *message)
+{
+	@@FM@@("invalid --profile: %s", message);
+}
+
+static bool pgdp_valid_utf8(const unsigned char *s, size_t n)
+{
+	size_t i = 0;
+	while (i < n)
+	{
+		unsigned char c = s[i++];
+		int need;
+		if (c < 0x80) continue;
+		if (c >= 0xC2 && c <= 0xDF) need = 1;
+		else if (c >= 0xE0 && c <= 0xEF) need = 2;
+		else if (c >= 0xF0 && c <= 0xF4) need = 3;
+		else return false;
+		if (i + (size_t) need > n) return false;
+		while (need-- > 0)
+			if (s[i++] < 0x80 || s[i - 1] > 0xBF) return false;
+	}
+	return true;
+}
+
+static bool pgdp_json_take(PgdpJson *j, char c)
+{
+	pgdp_json_ws(j);
+	if (j->p >= j->end || *j->p != c)
+		return false;
+	j->p++;
+	return true;
+}
+
+static char *pgdp_json_string(PgdpJson *j)
+{
+	StringInfoData out;
+	if (!pgdp_json_take(j, '"'))
+		pgdp_json_error("expected string");
+	initStringInfo(&out);
+	while (j->p < j->end)
+	{
+		unsigned char c = (unsigned char) *j->p++;
+		if (c == '"')
+			return out.data;
+		if (c < 0x20)
+			pgdp_json_error("control character in string");
+		if (c == '\\')
+		{
+			if (j->p >= j->end)
+				pgdp_json_error("truncated escape");
+			c = (unsigned char) *j->p++;
+			switch (c)
+			{
+				case '"': appendStringInfoChar(&out, '"'); break;
+				case '\\': appendStringInfoChar(&out, '\\'); break;
+				case '/': appendStringInfoChar(&out, '/'); break;
+				case 'b': appendStringInfoChar(&out, '\b'); break;
+				case 'f': appendStringInfoChar(&out, '\f'); break;
+				case 'n': appendStringInfoChar(&out, '\n'); break;
+				case 'r': appendStringInfoChar(&out, '\r'); break;
+				case 't': appendStringInfoChar(&out, '\t'); break;
+				default: pgdp_json_error("unsupported string escape");
+			}
+		}
+		else
+			appendStringInfoChar(&out, (char) c);
+	}
+	pgdp_json_error("unterminated string");
+	return NULL;
+}
+
+static char *pgdp_profile_read(const char *path, size_t *length)
+{
+	FILE *fp;
+	long size;
+	char *data;
+	if (path == NULL)
+		return NULL;
+	fp = fopen(path, "rb");
+	if (fp == NULL)
+		pgdp_json_error("cannot open profile file");
+	if (fseek(fp, 0, SEEK_END) != 0 || (size = ftell(fp)) < 0 || size > 262144)
+	{
+		fclose(fp);
+		pgdp_json_error("profile exceeds 256 KiB");
+	}
+	if (fseek(fp, 0, SEEK_SET) != 0)
+		pgdp_json_error("cannot seek profile file");
+	data = pg_malloc((size_t) size + 1);
+	if (fread(data, 1, (size_t) size, fp) != (size_t) size)
+	{
+		fclose(fp);
+		pg_free(data);
+		pgdp_json_error("cannot read profile file");
+	}
+	fclose(fp);
+	data[size] = '\0';
+	if (!pgdp_valid_utf8((unsigned char *) data, (size_t) size))
+	{
+		pg_free(data);
+		pgdp_json_error("profile must be UTF-8");
+	}
+	*length = (size_t) size;
+	return data;
+}
+
+static void pgdp_profile_string_field(PgdpJson *j, char **target, const char *name)
+{
+	char *value;
+	if (*target != NULL)
+		pgdp_json_error("duplicate profile field");
+	value = pgdp_json_string(j);
+	if (value[0] == '\0')
+		pgdp_json_error("profile strings must not be empty");
+	*target = value;
+}
+
+static void pgdp_profile_filter(PgdpJson *j)
+{
+	char *table = NULL;
+	char *where = NULL;
+	bool seen_table = false;
+	bool seen_where = false;
+	if (++j->depth > 32 || !pgdp_json_take(j, '{'))
+		pgdp_json_error("invalid filter object");
+	pgdp_json_ws(j);
+	if (!pgdp_json_take(j, '}'))
+	{
+		for (;;)
+		{
+			char *key = pgdp_json_string(j);
+			if (!pgdp_json_take(j, ':'))
+				pgdp_json_error("expected ':' in filter");
+			if (strcmp(key, "table") == 0)
+			{
+				if (seen_table) pgdp_json_error("duplicate filter field");
+				seen_table = true; pgdp_profile_string_field(j, &table, key);
+			}
+			else if (strcmp(key, "where") == 0)
+			{
+				if (seen_where) pgdp_json_error("duplicate filter field");
+				seen_where = true; pgdp_profile_string_field(j, &where, key);
+			}
+			else
+				pgdp_json_error("unknown filter field");
+			pg_free(key);
+			pgdp_json_ws(j);
+			if (pgdp_json_take(j, '}')) break;
+			if (!pgdp_json_take(j, ',')) pgdp_json_error("expected ',' in filter");
+		}
+	}
+	if (!seen_table || !seen_where)
+		pgdp_json_error("filter requires table and where");
+	simple_string_list_append(&tabledata_where_patterns, psprintf("%s:%s", table, where));
+	pg_free(table); pg_free(where); j->depth--;
+}
+
+static void pgdp_profile_mask(PgdpJson *j)
+{
+	char *table = NULL, *column = NULL, *preset = NULL, *expression = NULL;
+	bool seen_table = false, seen_column = false;
+	if (++j->depth > 32 || !pgdp_json_take(j, '{'))
+		pgdp_json_error("invalid mask object");
+	pgdp_json_ws(j);
+	if (!pgdp_json_take(j, '}'))
+	{
+		for (;;)
+		{
+			char *key = pgdp_json_string(j);
+			if (!pgdp_json_take(j, ':')) pgdp_json_error("expected ':' in mask");
+			if (strcmp(key, "table") == 0)
+			{
+				if (seen_table) pgdp_json_error("duplicate mask field");
+				seen_table = true; pgdp_profile_string_field(j, &table, key);
+			}
+			else if (strcmp(key, "column") == 0)
+			{
+				if (seen_column) pgdp_json_error("duplicate mask field");
+				seen_column = true; pgdp_profile_string_field(j, &column, key);
+			}
+			else if (strcmp(key, "preset") == 0)
+				pgdp_profile_string_field(j, &preset, key);
+			else if (strcmp(key, "expression") == 0)
+				pgdp_profile_string_field(j, &expression, key);
+			else
+				pgdp_json_error("unknown mask field");
+			pg_free(key);
+			pgdp_json_ws(j);
+			if (pgdp_json_take(j, '}')) break;
+			if (!pgdp_json_take(j, ',')) pgdp_json_error("expected ',' in mask");
+		}
+	}
+	if (!seen_table || !seen_column || (preset == NULL) == (expression == NULL))
+		pgdp_json_error("mask requires table, column and exactly one of preset/expression");
+	simple_string_list_append(&tabledata_mask_patterns,
+			psprintf("%s:%s:%s", table, column, preset ? preset : expression));
+	pg_free(table); pg_free(column); pg_free(preset); pg_free(expression); j->depth--;
+}
+
+static void pgdp_profile_array(PgdpJson *j, bool masks)
+{
+	if (!pgdp_json_take(j, '[')) pgdp_json_error("expected profile array");
+	pgdp_json_ws(j);
+	if (!pgdp_json_take(j, ']'))
+	{
+		for (;;)
+		{
+			if (masks) pgdp_profile_mask(j); else pgdp_profile_filter(j);
+			pgdp_json_ws(j);
+			if (pgdp_json_take(j, ']')) break;
+			if (!pgdp_json_take(j, ',')) pgdp_json_error("expected ',' in profile array");
+		}
+	}
+}
+
+static void pgdp_load_profile(void)
+{
+	PgdpJson j;
+	char *data, *key;
+	size_t length = 0;
+	bool version_seen = false, filters_seen = false, masks_seen = false;
+	data = pgdp_profile_read(pgdp_profile_path, &length);
+	j.p = data; j.end = data + length; j.depth = 0;
+	if (!pgdp_json_take(&j, '{')) pgdp_json_error("profile root must be an object");
+	pgdp_json_ws(&j);
+	if (!pgdp_json_take(&j, '}'))
+	{
+		for (;;)
+		{
+			key = pgdp_json_string(&j);
+			if (!pgdp_json_take(&j, ':')) pgdp_json_error("expected ':' in profile");
+			if (strcmp(key, "schema_version") == 0)
+			{
+				if (version_seen) pgdp_json_error("duplicate schema_version");
+				version_seen = true; pgdp_json_ws(&j);
+				if (j.p >= j.end || *j.p != '1') pgdp_json_error("schema_version must be 1");
+				j.p++; pgdp_json_ws(&j);
+				if (j.p < j.end && *j.p >= '0' && *j.p <= '9') pgdp_json_error("schema_version must be 1");
+			}
+			else if (strcmp(key, "filters") == 0)
+			{
+				if (filters_seen) pgdp_json_error("duplicate filters");
+				filters_seen = true; pgdp_profile_array(&j, false);
+			}
+			else if (strcmp(key, "masks") == 0)
+			{
+				if (masks_seen) pgdp_json_error("duplicate masks");
+				masks_seen = true; pgdp_profile_array(&j, true);
+			}
+			else pgdp_json_error("unknown profile field");
+			pg_free(key); pgdp_json_ws(&j);
+			if (pgdp_json_take(&j, '}')) break;
+			if (!pgdp_json_take(&j, ',')) pgdp_json_error("expected ',' in profile");
+		}
+	}
+	if (!version_seen) pgdp_json_error("schema_version is required");
+	pgdp_json_ws(&j);
+	if (j.p != j.end) pgdp_json_error("trailing data after profile");
+	pg_free(data);
+}
 """
 
 BUILD_INFO_C = r'''
@@ -799,6 +1085,8 @@ find_unquoted_char(const char *s, char sep)
             "static bool pgdp_dry_run = false;\n"
             "static const char *pgdp_plan_format = \"text\";\n"
             "static bool pgdp_plan_format_set = false;\n"
+            "static const char *pgdp_profile_path = NULL;\n"
+            "static void pgdp_load_profile(void);\n"
             "/* pg_dumpplus: forward decls (tanimlar fmtCopyColumnList oncesi) */\n"
             "static char *mask_expr_for(Oid relid, const char *colname);\n"
             "static bool table_has_masks(TableInfo *tbinfo);\n"
@@ -813,7 +1101,8 @@ find_unquoted_char(const char *s, char sep)
             '\t\t{"mask", required_argument, NULL, 27},\t\t/* pg_dumpplus */\n'
             '\t\t{"dry-run", no_argument, NULL, 28},\t\t/* pg_dumpplus */\n'
             '\t\t{"plan-format", required_argument, NULL, 29},\t/* pg_dumpplus */\n'
-            '\t\t{"build-info", no_argument, NULL, 30},\t\t/* pg_dumpplus */',
+            '\t\t{"build-info", no_argument, NULL, 30},\t\t/* pg_dumpplus */\n'
+            '\t\t{"profile", required_argument, NULL, 31},\t\t/* pg_dumpplus */',
             "dm-longopt")
         # 5c: case 27 (case 26 blogundan hemen sonra)
         t = rep_once(t, "\t\t\tcase 26:\t\t\t\t/* pg_dumpplus: --where=PATTERN:FILTER */\n"
@@ -828,7 +1117,10 @@ find_unquoted_char(const char *s, char sep)
             '\t\t\tcase 28:\t\t\t\tpgdp_dry_run = true; break;\n'
             '\t\t\tcase 29:\t\t\t\tpgdp_plan_format = pg_strdup(optarg); pgdp_plan_format_set = true; break;\n'
             '\t\t\tcase 30:\t\t\t\tprintf("pg_dumpplus project %s; PostgreSQL %s; source %s\\n", PGDUMPPLUS_PROJECT_VERSION, PG_VERSION, PGDUMPPLUS_SOURCE_COMMIT); exit(0);\n',
+            '\t\t\tcase 31:\t\t\t\tpgdp_profile_path = pg_strdup(optarg); break;\\n',
             "dm-case")
+        t = t.replace(r"pgdp_profile_path = pg_strdup(optarg); break;\n",
+                      "pgdp_profile_path = pg_strdup(optarg); break;\n")
         # 5d: help — --where satirindan once
         where_help = 'printf(_("  --where=PATTERN:FILTER   dump only rows matching SQL FILTER for\\n"'
         t = rep_once(t, where_help,
@@ -837,6 +1129,7 @@ find_unquoted_char(const char *s, char sep)
             'printf(_("  --dry-run                    print a catalog-only export plan\\n"));\n'
             'printf(_("  --plan-format=text|json      select dry-run plan format\\n"));\n'
             'printf(_("  --build-info                 print project, upstream and source identity\\n"));\n'
+            'printf(_("  --profile=FILE               load a strict JSON profile (schema_version 1)\\n"));\n'
             + where_help, "dm-help")
         # 5e: cozum blogu — --where cozum bloğunun ardina
         mw = re.search(r"if \(tabledata_where_oids\.head == NULL\)\n[ \t]*\S[^\0]*?\n[ \t]*\}\n", t)
@@ -845,6 +1138,13 @@ find_unquoted_char(const char *s, char sep)
         block = (MASK_RESOLVE_C.replace("@@FM@@", fm_err)
                             .replace("@@ARGS@@", mask_args))
         t = t[:mw.end()] + block + t[mw.end():]
+        # Profiles are parsed by the compiled client after getopt has handled
+        # all CLI options, so both inputs share the same rule lists and merge
+        # semantics.  Loading happens before any database connection.
+        profile_anchor = "\n\t/* --column-inserts implies --inserts */"
+        profile_insert = ("\n\tif (pgdp_profile_path != NULL)\n"
+                          "\t\tpgdp_load_profile();\n")
+        t = rep_once(t, profile_anchor, profile_insert + profile_anchor, "dm-profile-load")
         wr(d, t); changed.append(d)
 
     # ---------- 6) pg_dump.c: maskeleme yardimcilari ve sorgu yollari ----------
@@ -853,7 +1153,7 @@ find_unquoted_char(const char *s, char sep)
         mfc = re.search(r"static const char \*\nfmtCopyColumnList\(const TableInfo \*ti, PQExpBuffer buffer\)\n\{\n", t)
         if not mfc: raise Fail("anchor [dm-fmt] yok")
         pos = mfc.start()
-        t = t[:pos] + MASK_HELPERS_C + MASK_VALIDATE_ALL_C.replace("@@FM@@", fm_err) + MASK_DRYRUN_C.replace("@@FM@@", fm_err) + MASK_FMT_C + t[pos:]
+        t = t[:pos] + PROFILE_READER_C.replace("@@FM@@", fm_err) + MASK_HELPERS_C + MASK_VALIDATE_ALL_C.replace("@@FM@@", fm_err) + MASK_DRYRUN_C.replace("@@FM@@", fm_err) + MASK_FMT_C + t[pos:]
         # 6b: COPY (SELECT) provizyonu -> maskeli liste; restore header'a dokunulmaz
         t = rep_once(t,
             "column_list = fmtCopyColumnList(tbinfo, clistBuf);",

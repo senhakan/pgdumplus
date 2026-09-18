@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/senhakan/pgdumpplus/profile-schema-v1.json",
-  "title": "pg_dumpplus profile (design)",
-  "description": "Schema contract for the future compiled profile reader; not accepted by current releases.",
+  "title": "pg_dumpplus profile v1",
+  "description": "Strict profile contract consumed by the compiled pg_dumpplus client.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version"],

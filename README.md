@@ -97,12 +97,13 @@ independently verified, use the signed standalone release assets.
 `--build-info` prints the pg_dumpplus project version, the upstream PostgreSQL
 version and the source commit used for that build.
 
-Profile files are not supported yet. The future strict JSON contract is kept in
-[`docs/design/profile-schema.json`](docs/design/profile-schema.json); current
-clients do not accept a `--profile` option.
-Design examples for tenant subsets, support extracts and full redaction are in
+Profile files use the strict v1 JSON contract in
+[`docs/design/profile-schema.json`](docs/design/profile-schema.json). Compiled
+clients accept `--profile=FILE`, merge its rules with CLI rules, and parse it
+locally without a Python runtime. Design examples for tenant subsets, support
+extracts and full redaction are in
 [`docs/examples/profiles/`](docs/examples/profiles/).
-The build-time contract checker is `scripts/validate_profile.py`; it rejects
+The client and build-time contract checker (`scripts/validate_profile.py`) reject
 duplicate keys, unknown fields and malformed profile entries without external
 Python packages.
 

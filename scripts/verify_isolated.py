@@ -242,6 +242,27 @@ class Suite:
             if result.returncode == 0 or fragment not in result.stderr:
                 raise AssertionError("expected dry-run option failure: " + result.stderr)
 
+    def profile_roundtrip(self):
+        """The compiled client must load the checked-in JSON profile directly."""
+        profile = Path(__file__).resolve().parents[1] / "docs/examples/profiles/support-extract.json"
+        result = self.run([
+            self.args.binary, "-d", self.source, "--no-owner", "--no-privileges",
+            "--dry-run", "--plan-format=json", "--profile", profile,
+        ])
+        plan = json.loads(result.stdout)
+        if len(plan.get("filters", [])) != 1 or len(plan.get("masks", [])) != 2:
+            raise AssertionError("compiled profile was not resolved in the catalog plan")
+        path, _ = self.dump(["--profile", profile], fmt="p")
+        self.restore(path, "p")
+        self.equal(self.sql(self.target, "SELECT count(*) FROM orders"), "1000")
+        self.equal(self.sql(self.target, "SELECT phone FROM customers WHERE id=1"), "********567")
+        invalid = Path(__file__).resolve().parents[1] / "docs/design/profile-schema.json"
+        rejected = self.run([
+            self.args.binary, "-d", self.source, "--profile", invalid,
+        ], check=False)
+        if rejected.returncode == 0 or "invalid --profile" not in rejected.stderr:
+            raise AssertionError("compiled profile parser accepted an invalid schema document")
+
     def snapshot_consistency(self):
         """A concurrent committed update must not produce mixed dump values."""
         for fmt in ("p", "c", "d"):
@@ -311,6 +332,7 @@ class Suite:
         self.case("dry-run JSON quoted identifiers", self.dry_run_quoted_json)
         self.case("dry-run does not execute custom SQL", self.dry_run_does_not_execute_custom_sql)
         self.case("dry-run option combinations fail clearly", self.dry_run_option_errors)
+        self.case("compiled JSON profile resolves and restores", self.profile_roundtrip)
         self.case("concurrent update keeps one dump snapshot", self.snapshot_consistency)
         self.case("preset on non-text column fails before export", lambda: self.error(
             "--mask=public.customers:birth_year:all", "yields text"))
