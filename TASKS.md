@@ -84,6 +84,7 @@ These are target milestones, not published versions or calendar promises.
 | C1 validator CI | [35290657033](https://github.com/senhakan/pgdumpplus/actions/runs/35290657033) | Commit 64a2c1c: profile examples, duplicate-key, unknown-field, duplicate-mask-target and non-integer schema-version rejection passed in the full build/package/verify matrix | Compiled profile reader remains intentionally unimplemented |
 | B3 release gate | [35290992130](https://github.com/senhakan/pgdumpplus/actions/runs/35290992130) | Commit dff7b15: full CI passed with an enforced v2 release boundary; a v2 tag is rejected while A3 is incomplete | Candidate/stable promotion still requires completing A3 and the documented release procedure |
 | D2 distribution contract | [35292021026](https://github.com/senhakan/pgdumpplus/actions/runs/35292021026) | Commit 6420190: signed-channel contract documentation and links passed the full build/package/verify matrix | Hosted repository, signing-key ownership and real channel install/upgrade tests remain external release decisions |
+| C2 design contract | [35292795924](https://github.com/senhakan/pgdumpplus/actions/runs/35292795924) | Commit de4a70f: typed scope, canonicalization, protected key-FD interface and leakage-test requirements documented and passed the full CI matrix | Security review and implementation evidence are still required before marking C2-design done |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
