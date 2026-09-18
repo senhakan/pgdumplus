@@ -42,9 +42,9 @@ sisteminize uygun Linux **x86_64** paketini indirin.
 | Platform | Paket |
 | --- | --- |
 | RHEL / Rocky Linux / AlmaLinux 8 | `.el8.x86_64.rpm` |
-| Ubuntu 22.04 | `1u2204_amd64.deb` |
-| Ubuntu 24.04 | `1u2404_amd64.deb` |
-| Debian 12 | `1d12_amd64.deb` |
+| Ubuntu 22.04 | `*_u2204_amd64.deb` |
+| Ubuntu 24.04 | `*_u2404_amd64.deb` |
+| Debian 12 | `*_d12_amd64.deb` |
 
 PostgreSQL 13 (legacy), 17 ve 18 (maintained) için paketler sunulur. Sunucunuzla
 aynı ana sürümü, 14–16 sunucularında PostgreSQL 17 paketini seçin. Sunucunuzdan daha eski ana

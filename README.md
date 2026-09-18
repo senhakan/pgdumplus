@@ -73,9 +73,9 @@ Choose a Linux **x86_64** package from the
 | Platform | Package |
 | --- | --- |
 | RHEL / Rocky Linux / AlmaLinux 8 | `.el8.x86_64.rpm` |
-| Ubuntu 22.04 | `1u2204_amd64.deb` |
-| Ubuntu 24.04 | `1u2404_amd64.deb` |
-| Debian 12 | `1d12_amd64.deb` |
+| Ubuntu 22.04 | `*_u2204_amd64.deb` |
+| Ubuntu 24.04 | `*_u2404_amd64.deb` |
+| Debian 12 | `*_d12_amd64.deb` |
 
 Packages are available for PostgreSQL 13 (legacy), 17 and 18 (maintained).
 Choose the matching major version; use the PostgreSQL 17 package for servers
