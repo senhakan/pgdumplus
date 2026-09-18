@@ -92,13 +92,17 @@ outside Git; put only sanitized conclusions here.
 
 ## Resume instructions
 
-First task: A1. Read MASK_VALIDATE_C and its injection points in
-scripts/apply_pgdumpplus.py. Read skipped_mask and error tests in
-scripts/verify_isolated.py. Reproduce warning/continue behavior with a synthetic
-disposable fixture. Trace validation timing relative to table-data output,
-then implement strict resolution and format/parallel regression checks.
+Next implementation task: finish A3's upstream PostgreSQL TAP/regression
+comparison against a matching vanilla build and record the exact command and
+result. Keep the existing synthetic format, partition and snapshot checks as
+regression coverage; do not weaken expected values to make a test pass.
 
-A1 has no known external blocker. D2-public needs hosting/key ownership.
-C2 needs a reviewed architecture before key-handling implementation.
-At interruption record active task, changed paths, last test/result, exact next
-action and unresolved blocker. PLAN.md contains the required behavior contract.
+After A3, implement C1's compiled profile reader against the strict v1 schema
+and run the three checked-in examples through the same rule model as CLI
+options. The JSON validator is build-time drift protection only, not the
+client-side profile implementation.
+
+D1 and D2 remain gated on native platform/channel evidence. D2-public also
+needs an owner for hosting and signing keys. At interruption record active task,
+changed paths, last check, exact next action and unresolved blocker. PLAN.md
+contains the required behavior contract.
