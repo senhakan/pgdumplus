@@ -107,6 +107,29 @@ The client and build-time contract checker (`scripts/validate_profile.py`) rejec
 duplicate keys, unknown fields and malformed profile entries without external
 Python packages.
 
+A single profile can define both row filters and column masking rules:
+
+```json
+{
+  "schema_version": 1,
+  "filters": [
+    {"table": "public.orders", "where": "id <= 25"}
+  ],
+  "masks": [
+    {"table": "public.customers", "column": "phone", "preset": "phone"},
+    {"table": "public.customers", "column": "address",
+     "expression": "left(address, 3) || '***'"}
+  ]
+}
+```
+
+Run it with `pg_dumpplus --profile=profile.json ...`. Profile and command-line
+rules may be combined; filters are applied together and duplicate mask targets
+are rejected. Profile SQL expressions are trusted input, so protect the file
+with the same access controls as your database credentials. The upstream
+PostgreSQL `--filter=FILE` option is a separate feature and does not define
+pg_dumpplus masking rules.
+
 Practical, synthetic release-binary examples are in
 [`docs/tutorials.md`](docs/tutorials.md); a non-published announcement draft is
 kept in [`docs/launch-draft.md`](docs/launch-draft.md).
