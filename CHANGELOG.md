@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added native package and runtime coverage for PostgreSQL 14, 15 and 16 on
+  EL8, EL9 and EL10 alongside the existing 13, 17 and 18 builds.
+
 ## 2.0.0
 
 - Added compiled `--profile=FILE` support for strict profile v1 JSON files;

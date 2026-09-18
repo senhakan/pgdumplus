@@ -9,7 +9,7 @@ on:
       pg_versions:
         description: 'Space-separated PostgreSQL versions to build (listed in support-matrix.json)'
         required: false
-        default: '18.6 17.11 13.23'
+        default: '18.6 17.11 16.15 15.19 14.24 13.23'
 
 permissions:
   contents: read

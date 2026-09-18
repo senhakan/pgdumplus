@@ -48,9 +48,9 @@ sisteminize uygun Linux **x86_64** paketini indirin.
 | Ubuntu 24.04 | `*_u2404_amd64.deb` |
 | Debian 12 | `*_d12_amd64.deb` |
 
-PostgreSQL 13 (legacy), 17 ve 18 (maintained) için paketler sunulur. Sunucunuzla
-aynı ana sürümü, 14–16 sunucularında PostgreSQL 17 paketini seçin. Sunucunuzdan daha eski ana
-sürüme sahip bir istemci kullanmayın.
+PostgreSQL 13 (legacy) ve 14–18 (maintained) için paketler sunulur. Sunucunuzla
+aynı ana sürüme sahip paketi seçin. Sunucunuzdan daha eski ana sürüme sahip bir
+istemci kullanmayın.
 
 Örneğin Ubuntu 24.04 üzerinde PostgreSQL 17 paketini kurmak için:
 
@@ -69,9 +69,9 @@ dosyasındadır; bağımsız ve doğrulanmış paketler yayımlanana kadar kulla
 
 | Komut | İşlev |
 | --- | --- |
-| `pg_dumpplus-18` / `pg_dumpplus-17` / `pg_dumpplus-13` | Belirli istemci sürümünü çalıştırır |
+| `pg_dumpplus-18` … `pg_dumpplus-13` | Belirli istemci sürümünü çalıştırır |
 | `pg_dumpplus` | PostgreSQL 18 paketinin sağladığı varsayılan komut |
-| `pg_restoreplus-18` / `pg_restoreplus-17` / `pg_restoreplus-13` | Aynı sürümün geri yükleme aracı |
+| `pg_restoreplus-18` … `pg_restoreplus-13` | Aynı sürümün geri yükleme aracı |
 
 `--build-info`, pg_dumpplus proje sürümünü, upstream PostgreSQL sürümünü ve
 derlemede kullanılan kaynak commit'ini gösterir.

@@ -79,9 +79,8 @@ Choose a Linux **x86_64** package from the
 | Ubuntu 24.04 | `*_u2404_amd64.deb` |
 | Debian 12 | `*_d12_amd64.deb` |
 
-Packages are available for PostgreSQL 13 (legacy), 17 and 18 (maintained).
-Choose the matching major version; use the PostgreSQL 17 package for servers
-on 14–16.
+Packages are available for PostgreSQL 13 (legacy) and 14 through 18
+(maintained). Choose the matching major version for your server.
 Do not use a client older than your server's major version.
 
 For example, install the PostgreSQL 17 package for Ubuntu 24.04:
@@ -102,9 +101,9 @@ independently verified, use the signed standalone release assets.
 
 | Command | Purpose |
 | --- | --- |
-| `pg_dumpplus-18` / `pg_dumpplus-17` / `pg_dumpplus-13` | Use a specific client major |
+| `pg_dumpplus-18` … `pg_dumpplus-13` | Use a specific client major |
 | `pg_dumpplus` | Default command supplied by the PostgreSQL 18 package |
-| `pg_restoreplus-18` / `pg_restoreplus-17` / `pg_restoreplus-13` | Matching archive restore client |
+| `pg_restoreplus-18` … `pg_restoreplus-13` | Matching archive restore client |
 
 `--build-info` prints the pg_dumpplus project version, the upstream PostgreSQL
 version and the source commit used for that build.

@@ -1,12 +1,15 @@
 {
   "schema_version": 1,
-  "project_version": "2.0.0",
+  "project_version": "2.1.0",
   "channels": {
     "stable": "v2.0.0",
     "next": "main"
   },
   "postgresql": [
     {"major": 13, "status": "legacy", "source_series": "13.x", "tested_minor": "13.23", "source_sha256": "3fa89e67db790ecdb5fd3709c525c1b114662b72090de7a1768094dc9ebb5639"},
+    {"major": 14, "status": "maintained", "source_series": "14.x", "tested_minor": "14.24", "source_sha256": "52d90500ee500b3a02ebb4280169dc4769d6a0ed66a388617f9019e62d734423"},
+    {"major": 15, "status": "maintained", "source_series": "15.x", "tested_minor": "15.19", "source_sha256": "f33933546ed137632db5cb631e1061ee40b19a48b8bac0d266d04e293714c79b"},
+    {"major": 16, "status": "maintained", "source_series": "16.x", "tested_minor": "16.15", "source_sha256": "c1afb748843644f8cc79de12892b9024bc4b82f6c9fe0353c0fcd31aa9fe16ea"},
     {"major": 17, "status": "maintained", "source_series": "17.x", "tested_minor": "17.11", "source_sha256": "8b222af249d957ecec23608fe848d2dce03246121ac9b67bafb081226ea3c535"},
     {"major": 18, "status": "maintained", "source_series": "18.x", "tested_minor": "18.6", "source_sha256": "ff9b1187e3ab120282b9f3e09a5efba2425838b3a843150c5cb2f019f47ac400", "default_command": true}
   ],
