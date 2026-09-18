@@ -1,12 +1,13 @@
 # Execution tracker
 
-Updated: 2026-09-17. Specification: [PLAN.md](PLAN.md).
+Updated: 2026-09-18. Specification: [PLAN.md](PLAN.md).
 Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence required).
 
 ## Verified baseline
 
 - Canonical repo senhakan/pgdumpplus; command pg_dumpplus.
-- Main baseline f3285c3; latest published release v1.2.0 at inspection.
+- Main baseline f3285c3; latest stable release v1.2.0 and verified candidate
+  v2.0.0-rc.1 are published.
 - [CI 35253870996](https://github.com/senhakan/pgdumpplus/actions/runs/35253870996): success.
 - Patcher safety, compiled packages, PG13/17 roundtrips and package smoke tests exist.
 - New presets are on main after v1.2.0; not yet part of a newer stable release.
