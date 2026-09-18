@@ -83,6 +83,36 @@ Packages are available for PostgreSQL 13 (legacy) and 14 through 18
 (maintained). Choose the matching major version for your server.
 Do not use a client older than your server's major version.
 
+For complete Ubuntu/Rocky package installation, verification, dump, profile,
+restore and removal examples, see the [Turkish installation and usage manual](docs/manual-tr.md).
+
+### Automated installer
+
+The installer detects the supported OS and PostgreSQL major version, selects the
+matching release package, reports an existing installation, asks for
+confirmation, installs it, and verifies the binary. Review the script before
+running it; add `--yes` for non-interactive automation:
+
+```bash
+curl -fsSL https://github.com/senhakan/pgdumpplus/releases/latest/download/install-pgdumpplus.sh \
+  | bash -s --
+
+# wget equivalent
+wget -qO- https://github.com/senhakan/pgdumpplus/releases/latest/download/install-pgdumpplus.sh \
+  | bash -s -- --yes
+
+# Explicit PostgreSQL major when automatic server detection is unavailable
+curl -fsSL https://github.com/senhakan/pgdumpplus/releases/latest/download/install-pgdumpplus.sh \
+  | bash -s -- --pg-major 17
+```
+
+The release-asset URL is intentionally stable and shorter than a raw source
+URL. The script remains versioned in the repository at
+[`scripts/install-pgdumpplus.sh`](scripts/install-pgdumpplus.sh).
+
+Use `--dry-run` to inspect the detected OS, PostgreSQL major, selected asset,
+and currently installed package without downloading or changing the system.
+
 For example, install the PostgreSQL 17 package for Ubuntu 24.04:
 
 ```bash

@@ -301,6 +301,10 @@ jobs:
         shell: bash
         run: find all-dist -maxdepth 1 -type f -name '*.patch' -delete
 
+      - name: Add automated installer asset
+        shell: bash
+        run: install -m 0755 scripts/install-pgdumpplus.sh all-dist/install-pgdumpplus.sh
+
       - name: Enforce release boundary
         run: python3 scripts/release_gate.py "${GITHUB_REF_NAME:-}"
 
@@ -376,6 +380,7 @@ jobs:
             Choose the package for your OS: EL8 RPM, Ubuntu 22.04/24.04 or Debian 12 DEB.
             No compilation or PostgreSQL server installation is needed on the client.
             Install with `dnf install ./<pkg>.rpm` or `apt install ./<pkg>.deb`.
+            Automated installer: https://github.com/senhakan/pgdumpplus/releases/latest/download/install-pgdumpplus.sh
             Run `pg_dumpplus-<major> --version`; PG18 also supplies `pg_dumpplus`.
             Tarballs share the same opt/ and usr/ layout. Runtime dependencies remain OS-specific.
 

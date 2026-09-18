@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.1
+
+- Added an OS-aware automated installer for Ubuntu, Debian and EL8/9/10.
+- Added release-asset installation instructions and the Turkish package manual.
+
 ## 2.1.0
 
 - Added native package and runtime coverage for PostgreSQL 14, 15 and 16 on
