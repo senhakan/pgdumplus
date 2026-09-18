@@ -20,7 +20,8 @@ def main(argv):
     tag = argv[1] if len(argv) > 1 else ""
     if not tag.startswith("v2"):
         return 0
-    current = statuses(Path(__file__).resolve().parent.parent / "TASKS.md")
+    task_file = Path(argv[2]) if len(argv) > 2 else Path(__file__).resolve().parent.parent / "TASKS.md"
+    current = statuses(task_file)
     incomplete = [task for task in REQUIRED if current.get(task) != "DONE"]
     if incomplete:
         print("v2 release blocked; incomplete plan tasks: " + ", ".join(incomplete), file=sys.stderr)

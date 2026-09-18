@@ -54,10 +54,13 @@ jobs:
             echo 'boolean schema versions were accepted' >&2
             exit 1
           fi
-          if python3 scripts/release_gate.py v2.0.0; then
+          blocked_tasks=$(mktemp)
+          sed 's/| A3 | DONE |/| A3 | IN_PROGRESS |/' TASKS.md > "$blocked_tasks"
+          if python3 scripts/release_gate.py v2.0.0 "$blocked_tasks"; then
             echo 'v2 release gate unexpectedly passed with incomplete tasks' >&2
             exit 1
           fi
+          python3 scripts/release_gate.py v2.0.0
           python3 scripts/release_gate.py v1.2.1
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             V="$REQUESTED_VERSIONS"
