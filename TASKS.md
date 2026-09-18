@@ -23,7 +23,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | A3 | DONE | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | DONE | — | Version manifest, supported bases, package identity/order and cross-major guard (B1) |
 | B2 | DONE | — | Source hashes, CI permissions, SBOM/provenance (B2) |
-| B3 | IN_PROGRESS | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
+| B3 | DONE | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
 | C1 | BLOCKED | A2 | Compiled profile reader and tested examples (C1); strict design schema is documented in `docs/design/profile-schema.json` |
 | C2-design | IN_PROGRESS | A3 | Key/type/execution design and review in `docs/design/pseudonymization.md` (C2-design) |
 | C2 | BLOCKED | C1, C2-design | Typed deterministic pseudonyms (C2) |
@@ -84,6 +84,7 @@ These are target milestones, not published versions or calendar promises.
 | C1 validator hardening | 689c2e5 / local validator checks | CI now exercises rejection of duplicate keys and unknown fields in addition to validating all three examples | Superseded by the full CI evidence below |
 | C1 validator CI | [35290657033](https://github.com/senhakan/pgdumpplus/actions/runs/35290657033) | Commit 64a2c1c: profile examples, duplicate-key, unknown-field, duplicate-mask-target and non-integer schema-version rejection passed in the full build/package/verify matrix | Compiled profile reader remains intentionally unimplemented |
 | B3 release gate | [35295641589](https://github.com/senhakan/pgdumpplus/actions/runs/35295641589) | Commit 389ee28: full CI passed with v2 negative/positive gate tests; the real v2 gate now passes after A3 completion | Candidate/stable promotion still requires the documented release procedure and independent asset verification |
+| B3 candidate release | [35296823454](https://github.com/senhakan/pgdumpplus/actions/runs/35296823454) | Tag `v2.0.0-rc.1` passed the full build, isolated verification, DEB/RPM smoke, TAP and provenance pipeline; [candidate release](https://github.com/senhakan/pgdumpplus/releases/tag/v2.0.0-rc.1) is published as a prerelease with 36 platform packages, SBOM and SHA256 manifest | Stable promotion remains a separate decision after candidate review |
 | D2 distribution contract | [35292021026](https://github.com/senhakan/pgdumpplus/actions/runs/35292021026) | Commit 6420190: signed-channel contract documentation and links passed the full build/package/verify matrix | Hosted repository, signing-key ownership and real channel install/upgrade tests remain external release decisions |
 | C2 design contract | [35292795924](https://github.com/senhakan/pgdumpplus/actions/runs/35292795924) | Commit de4a70f: typed scope, canonicalization, protected key-FD interface and leakage-test requirements documented and passed the full CI matrix | Security review and implementation evidence are still required before marking C2-design done |
 
