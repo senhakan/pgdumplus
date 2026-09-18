@@ -7,7 +7,7 @@ MAJOR=${2:?}
 OLDER=${3:?}
 NEWER=${4:-}
 [[ -f /.dockerenv || -f /run/.containerenv ]] || { echo 'Disposable container required' >&2; exit 1; }
-[[ "$MAJOR" == 13 || "$MAJOR" == 17 || "$MAJOR" == 18 ]] || exit 1
+[[ "$MAJOR" =~ ^(13|14|15|16|17|18)$ ]] || exit 1
 if command -v gcc || command -v make; then
   echo 'Use a clean runtime image without build tools' >&2
   exit 1
