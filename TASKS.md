@@ -82,6 +82,7 @@ These are target milestones, not published versions or calendar promises.
 | C1 profile examples | 02fcd2c / looped `python3 -m json.tool` | Added tenant-subset, support-extract and full-redaction design examples; all parse as valid JSON and are referenced from the public README | Examples remain design-only until the compiled profile reader is implemented; CI validation awaits push permission |
 | C1 validator hardening | 689c2e5 / local validator checks | CI now exercises rejection of duplicate keys and unknown fields in addition to validating all three examples | Superseded by the full CI evidence below |
 | C1 validator CI | [35289899400](https://github.com/senhakan/pgdumpplus/actions/runs/35289899400) | Commit c308d2b: profile examples, duplicate-key, unknown-field and duplicate-mask-target rejection passed in the full build/package/verify matrix | Compiled profile reader remains intentionally unimplemented |
+| B3 release gate | [35290992130](https://github.com/senhakan/pgdumpplus/actions/runs/35290992130) | Commit dff7b15: full CI passed with an enforced v2 release boundary; a v2 tag is rejected while A3 is incomplete | Candidate/stable promotion still requires completing A3 and the documented release procedure |
 
 Add exact checked commit, CI URL or command and actual outcome for each task.
 Never infer a test count or mark an ongoing run passed. Keep private evidence
