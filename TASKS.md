@@ -10,8 +10,8 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 - [CI 35253870996](https://github.com/senhakan/pgdumpplus/actions/runs/35253870996): success.
 - Patcher safety, compiled packages, PG13/17 roundtrips and package smoke tests exist.
 - New presets are on main after v1.2.0; not yet part of a newer stable release.
-- Strict masks and catalog-only dry-run are implemented and covered by CI.
-  Profiles and deterministic pseudonyms remain unimplemented by design.
+- Strict masks, catalog-only dry-run and compiled profiles are implemented and
+  covered by CI. Deterministic pseudonyms remain unimplemented pending C2 review.
 - This tracker supersedes stale defect/completion claims in the previous list.
 
 ## Work queue
@@ -24,7 +24,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | B1 | DONE | — | Version manifest, supported bases, package identity/order and cross-major guard (B1) |
 | B2 | DONE | — | Source hashes, CI permissions, SBOM/provenance (B2) |
 | B3 | DONE | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
-| C1 | IN_PROGRESS | A2 | Compiled profile reader and tested examples (C1); strict v1 parser is implemented, CI evidence pending |
+| C1 | DONE | A2 | Compiled profile reader and tested examples (C1); strict v1 parser and full matrix evidence complete |
 | C2-design | IN_PROGRESS | A3 | Key/type/execution design and review in `docs/design/pseudonymization.md` (C2-design) |
 | C2 | BLOCKED | C1, C2-design | Typed deterministic pseudonyms (C2) |
 | D1-linux | BLOCKED | B1, B2 | Native Linux ARM64 packages (D1) |
@@ -82,8 +82,9 @@ These are target milestones, not published versions or calendar promises.
 | Public audit | [35287648751](https://github.com/senhakan/pgdumpplus/actions/runs/35287648751) | Commit 1f36ee9: tracked-file audit rejects credential, private-key and private-network markers; local and CI checks passed | Pattern scan complements, but does not replace, GitHub secret scanning |
 | C1 profile examples | 02fcd2c / looped `python3 -m json.tool` | Tenant-subset, support-extract and full-redaction v1 examples parse as valid JSON and are referenced from the public README | Runtime equivalence is covered by the compiled-profile CI case below |
 | C1 validator hardening | 689c2e5 / local validator checks | CI now exercises rejection of duplicate keys and unknown fields in addition to validating all three examples | Superseded by the full CI evidence below |
-| C1 validator CI | [35290657033](https://github.com/senhakan/pgdumpplus/actions/runs/35290657033) | Commit 64a2c1c: profile examples, duplicate-key, unknown-field, duplicate-mask-target and non-integer schema-version rejection passed in the full build/package/verify matrix | Compiled profile reader remains intentionally unimplemented |
-| C1 compiled reader | local PG17.11 build / `verify_isolated.py` case | Added dependency-free compiled `--profile=FILE` parser with 256 KiB, UTF-8, depth, duplicate/unknown-field and exactly-one preset/expression checks; profile rules feed the same CLI model and local binary rejected invalid schema and resolved a valid example before connection | Full PostgreSQL 13.23/17.11/18.6 CI evidence is required before marking C1 DONE |
+| C1 validator CI | [35290657033](https://github.com/senhakan/pgdumpplus/actions/runs/35290657033) | Commit 64a2c1c: profile examples, duplicate-key, unknown-field, duplicate-mask-target and non-integer schema-version rejection passed in the full build/package/verify matrix | Runtime parser evidence is recorded in the C1 full-matrix row |
+| C1 compiled reader | local PG17.11 build / `verify_isolated.py` case | Added dependency-free compiled `--profile=FILE` parser with 256 KiB, UTF-8, depth, duplicate/unknown-field and exactly-one preset/expression checks; profile rules feed the same CLI model and local binary rejected invalid schema and resolved a valid example before connection | Full matrix result is recorded below |
+| C1 full matrix | [35299099839](https://github.com/senhakan/pgdumpplus/actions/runs/35299099839) | Commit 40d5c21: compiled profile examples resolved through catalog-only JSON plans and plain export/restore; profile filter reduced orders to 25 and masks passed, invalid schema was rejected; PG13.23/17.11/18.6 build, verify and DEB/RPM smoke matrix passed | Profiles remain trusted SQL input; no includes or environment expansion are supported |
 | B3 release gate | [35295641589](https://github.com/senhakan/pgdumpplus/actions/runs/35295641589) | Commit 389ee28: full CI passed with v2 negative/positive gate tests; the real v2 gate now passes after A3 completion | Candidate/stable promotion still requires the documented release procedure and independent asset verification |
 | B3 candidate release | [35296823454](https://github.com/senhakan/pgdumpplus/actions/runs/35296823454) | Tag `v2.0.0-rc.1` passed the full build, isolated verification, DEB/RPM smoke, TAP and provenance pipeline; [candidate release](https://github.com/senhakan/pgdumpplus/releases/tag/v2.0.0-rc.1) is published as a prerelease with 36 platform packages, SBOM and SHA256 manifest | Stable promotion remains a separate decision after candidate review |
 | D2 distribution contract | [35292021026](https://github.com/senhakan/pgdumpplus/actions/runs/35292021026) | Commit 6420190: signed-channel contract documentation and links passed the full build/package/verify matrix | Hosted repository, signing-key ownership and real channel install/upgrade tests remain external release decisions |
@@ -100,10 +101,11 @@ comparison against a matching vanilla build and record the exact command and
 result. Keep the existing synthetic format, partition and snapshot checks as
 regression coverage; do not weaken expected values to make a test pass.
 
-After the current C1 implementation, run all three checked-in examples and
-negative parser cases through the same rule model as CLI options, then record
-the full matrix CI run before marking C1 DONE. The JSON validator remains
-build-time drift protection in addition to the compiled client parser.
+Next implementation task: complete the security review of
+`docs/design/pseudonymization.md` (C2-design), then implement typed
+pseudonymization only after its key-handling blockers are resolved. C1’s JSON
+validator remains build-time drift protection in addition to the compiled
+client parser.
 
 D1 and D2 remain gated on native platform/channel evidence. D2-public also
 needs an owner for hosting and signing keys. At interruption record active task,
