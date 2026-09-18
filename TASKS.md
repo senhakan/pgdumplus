@@ -32,7 +32,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | D2-local | BLOCKED | B1, B2 | Signed APT/RPM metadata and local client tests (D2) |
 | D2-public | BLOCKED | D2-local, B3, hosting/key decision | Hosted channels and upgrades (D2) |
 | D3a | DONE | — | Accurate README/TR, matrix, changelog, contribution/security docs (D3) |
-| D3b | BLOCKED | B3 | Release-binary demo/tutorials and launch drafts (D3) |
+| D3b | DONE | B3 | Release-binary demo/tutorials and launch drafts (D3) |
 | CLEAN1 | DONE | — | Audit and retire unsafe/redundant legacy entry points |
 
 CLEAN1: completed. Destructive and superseded shell scripts were removed after
@@ -87,6 +87,7 @@ These are target milestones, not published versions or calendar promises.
 | C1 full matrix | [35299099839](https://github.com/senhakan/pgdumpplus/actions/runs/35299099839) | Commit 40d5c21: compiled profile examples resolved through catalog-only JSON plans and plain export/restore; profile filter reduced orders to 25 and masks passed, invalid schema was rejected; PG13.23/17.11/18.6 build, verify and DEB/RPM smoke matrix passed | Profiles remain trusted SQL input; no includes or environment expansion are supported |
 | B3 release gate | [35295641589](https://github.com/senhakan/pgdumpplus/actions/runs/35295641589) | Commit 389ee28: full CI passed with v2 negative/positive gate tests; the real v2 gate now passes after A3 completion | Candidate/stable promotion still requires the documented release procedure and independent asset verification |
 | B3 candidate release | [35296823454](https://github.com/senhakan/pgdumpplus/actions/runs/35296823454) | Tag `v2.0.0-rc.1` passed the full build, isolated verification, DEB/RPM smoke, TAP and provenance pipeline; [candidate release](https://github.com/senhakan/pgdumpplus/releases/tag/v2.0.0-rc.1) is published as a prerelease with 36 platform packages, SBOM and SHA256 manifest | Stable promotion remains a separate decision after candidate review |
+| D3b launch assets | [35300111335](https://github.com/senhakan/pgdumpplus/actions/runs/35300111335) | Commit c3d0037: added release-binary tenant, date-range and masked-customer tutorials plus a non-published launch draft; documentation links and full matrix CI passed | Tutorials use synthetic/approved data; external posting remains manual |
 | D2 distribution contract | [35292021026](https://github.com/senhakan/pgdumpplus/actions/runs/35292021026) | Commit 6420190: signed-channel contract documentation and links passed the full build/package/verify matrix | Hosted repository, signing-key ownership and real channel install/upgrade tests remain external release decisions |
 | C2 design contract | [35292795924](https://github.com/senhakan/pgdumpplus/actions/runs/35292795924) | Commit de4a70f: typed scope, canonicalization, protected key-FD interface and leakage-test requirements documented and passed the full CI matrix | Security review and implementation evidence are still required before marking C2-design done |
 
