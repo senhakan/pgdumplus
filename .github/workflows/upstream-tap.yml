@@ -1,6 +1,9 @@
 name: Upstream pg_dump TAP
 
 on:
+  push:
+    paths:
+      - '.github/workflows/upstream-tap.yml'
   workflow_dispatch:
     inputs:
       pg_version:
