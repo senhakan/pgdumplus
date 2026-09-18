@@ -41,7 +41,7 @@ jobs:
           tar xzf "$RUNNER_TEMP/postgres.tar.gz" -C "$RUNNER_TEMP/upstream"
           src="$RUNNER_TEMP/upstream/postgres-$tag"
           cd "$src"
-          ./configure --without-icu --without-readline >configure.log 2>&1
+          ./configure --without-icu --without-readline --enable-tap-tests >configure.log 2>&1
           make -j2 >build.log 2>&1
           echo "VANILLA=$src" >> "$GITHUB_ENV"
 
