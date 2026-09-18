@@ -23,7 +23,7 @@ Statuses: READY, IN_PROGRESS, BLOCKED (dependency stated), DONE (evidence requir
 | A3 | DONE | A1 | Type/format/partition/snapshot/upstream coverage (A3) |
 | B1 | DONE | — | Version manifest, supported bases, package identity/order and cross-major guard (B1) |
 | B2 | DONE | — | Source hashes, CI permissions, SBOM/provenance (B2) |
-| B3 | BLOCKED | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
+| B3 | IN_PROGRESS | A1, A2, A3, B1, B2, D3a | Verified v2.0 candidate/stable promotion (B3) |
 | C1 | BLOCKED | A2 | Compiled profile reader and tested examples (C1); strict design schema is documented in `docs/design/profile-schema.json` |
 | C2-design | IN_PROGRESS | A3 | Key/type/execution design and review in `docs/design/pseudonymization.md` (C2-design) |
 | C2 | BLOCKED | C1, C2-design | Typed deterministic pseudonyms (C2) |
