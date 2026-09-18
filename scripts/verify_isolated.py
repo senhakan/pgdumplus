@@ -250,7 +250,8 @@ class Suite:
             "--dry-run", "--plan-format=json", "--profile", profile,
         ])
         plan = json.loads(result.stdout)
-        if len(plan.get("filters", [])) != 1 or len(plan.get("masks", [])) != 2:
+        masks = plan.get("masks", [])
+        if len(masks) != 2 or not any(item.get("filter") for item in masks):
             raise AssertionError("compiled profile was not resolved in the catalog plan")
         path, _ = self.dump(["--profile", profile], fmt="p")
         self.restore(path, "p")

@@ -248,15 +248,19 @@ static bool pgdp_json_take(PgdpJson *j, char c)
 
 static char *pgdp_json_string(PgdpJson *j)
 {
-	StringInfoData out;
+	char *out = pg_malloc(64);
+	size_t length = 0;
+	size_t capacity = 64;
 	if (!pgdp_json_take(j, '"'))
 		pgdp_json_error("expected string");
-	initStringInfo(&out);
 	while (j->p < j->end)
 	{
 		unsigned char c = (unsigned char) *j->p++;
 		if (c == '"')
-			return out.data;
+		{
+			out[length] = '\0';
+			return out;
+		}
 		if (c < 0x20)
 			pgdp_json_error("control character in string");
 		if (c == '\\')
@@ -264,21 +268,37 @@ static char *pgdp_json_string(PgdpJson *j)
 			if (j->p >= j->end)
 				pgdp_json_error("truncated escape");
 			c = (unsigned char) *j->p++;
-			switch (c)
 			{
-				case '"': appendStringInfoChar(&out, '"'); break;
-				case '\\': appendStringInfoChar(&out, '\\'); break;
-				case '/': appendStringInfoChar(&out, '/'); break;
-				case 'b': appendStringInfoChar(&out, '\b'); break;
-				case 'f': appendStringInfoChar(&out, '\f'); break;
-				case 'n': appendStringInfoChar(&out, '\n'); break;
-				case 'r': appendStringInfoChar(&out, '\r'); break;
-				case 't': appendStringInfoChar(&out, '\t'); break;
+				char value;
+				switch (c)
+			{
+				case '"': value = '"'; break;
+				case '\\': value = '\\'; break;
+				case '/': value = '/'; break;
+				case 'b': value = '\b'; break;
+				case 'f': value = '\f'; break;
+				case 'n': value = '\n'; break;
+				case 'r': value = '\r'; break;
+				case 't': value = '\t'; break;
 				default: pgdp_json_error("unsupported string escape");
+			}
+				if (length + 2 > capacity)
+				{
+					capacity *= 2;
+					out = pg_realloc(out, capacity);
+				}
+				out[length++] = value;
 			}
 		}
 		else
-			appendStringInfoChar(&out, (char) c);
+		{
+			if (length + 2 > capacity)
+			{
+				capacity *= 2;
+				out = pg_realloc(out, capacity);
+			}
+			out[length++] = (char) c;
+		}
 	}
 	pgdp_json_error("unterminated string");
 	return NULL;
