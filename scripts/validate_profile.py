@@ -66,6 +66,7 @@ def validate(path):
         entries = value.get(section, [])
         if not isinstance(entries, list):
             raise ValidationError("%s must be an array" % section)
+        seen_masks = set()
         for index, entry in enumerate(entries):
             if not isinstance(entry, dict):
                 raise ValidationError("%s[%d] must be an object" % (section, index))
@@ -82,6 +83,10 @@ def validate(path):
             for field in required:
                 string_field(entry, field)
             if section == "masks":
+                mask_key = (entry.get("table"), entry.get("column"))
+                if mask_key in seen_masks:
+                    raise ValidationError("duplicate mask target: %s.%s" % mask_key)
+                seen_masks.add(mask_key)
                 string_field(entry, "preset" if "preset" in entry else "expression")
 
 
