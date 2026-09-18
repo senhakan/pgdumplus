@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (v2.0.0 candidate)
+## 2.0.0-rc.1 (candidate)
 
 - Invalid masking rules now fail before table data export instead of being
   silently skipped.

@@ -332,6 +332,7 @@ jobs:
           files: |
             all-dist/*
             SHA256SUMS.txt
+          prerelease: ${{ contains(github.ref_name, '-') }}
           body: |
             Precompiled pg_dumpplus with matching restore client and private libpq.
             Choose the package for your OS: EL8 RPM, Ubuntu 22.04/24.04 or Debian 12 DEB.
