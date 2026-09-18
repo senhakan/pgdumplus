@@ -84,6 +84,9 @@ pg_dumpplus --build-info
 For an RPM package, use `sudo dnf install ./<package.rpm>`. Packages contain
 precompiled clients and a private `libpq`; no compiler, Python, or PostgreSQL
 server installation is required. The package manager installs runtime libraries.
+The future signed APT/RPM channel contract is documented in
+[`docs/distribution.md`](docs/distribution.md); until a hosted channel is
+independently verified, use the signed standalone release assets.
 
 | Command | Purpose |
 | --- | --- |

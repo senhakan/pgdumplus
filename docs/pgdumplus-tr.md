@@ -62,6 +62,8 @@ RPM paketleri için `sudo dnf install ./<paket.rpm>` kullanın. Paketler öncede
 derlenmiş istemcileri ve özel bir `libpq` içerir; derleyici, Python veya
 PostgreSQL sunucusu kurulumu gerekmez. Çalışma zamanı kütüphanelerini paket
 yöneticisi kurar.
+İmzalı APT/RPM kanalı için gelecek sözleşme [`docs/distribution.md`](distribution.md)
+dosyasındadır; bağımsız ve doğrulanmış paketler yayımlanana kadar kullanın.
 
 | Komut | İşlev |
 | --- | --- |
